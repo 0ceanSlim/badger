@@ -1,0 +1,39 @@
+{{define "view"}}
+<main class="flex flex-col items-center justify-center p-8">
+  <h1 class="mb-4">Login with Nostr</h1>
+  <button id="login-button" class="p-2 text-white bg-blue-400 rounded-md">
+    Sign In with Nostr
+  </button>
+
+  <!-- Hidden input to store the public key -->
+  <input type="hidden" id="public-key" name="publicKey" />
+
+  <script>
+    document.getElementById("login-button").onclick = async function () {
+      if (window.nostr) {
+        try {
+          const publicKey = await window.nostr.getPublicKey();
+          const response = await fetch("/do-login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ publicKey }).toString(),
+          });
+
+          if (response.ok) {
+            // Redirect to root ("/") after login
+            window.location.href = "/";
+          } else {
+            console.error("Login failed.");
+          }
+        } catch (err) {
+          console.error("Failed to get public key:", err);
+        }
+      } else {
+        alert("Nostr extension not available.");
+      }
+    };
+  </script>
+</main>
+{{end}}

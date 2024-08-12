@@ -19,6 +19,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	// Login
+	mux.HandleFunc("/login", routes.LoginViewHandler) // Login route
+	mux.HandleFunc("/do-login", handlers.LoginHandler)
 	// Initialize Routes
 	mux.HandleFunc("/", routes.IndexHandler)
 	mux.HandleFunc("/badgeform", routes.BadgeFormHandler)

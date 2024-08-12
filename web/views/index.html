@@ -1,6 +1,7 @@
 {{define "view"}}
 <main class="flex flex-col items-center justify-center p-8">
   <div class="mb-4">You are now viewing the {{.Title}}</div>
+  <p>Your Public Key: {{.PublicKey}}</p>
   <button
     hx-get="/badgeform"
     class="p-2 mb-4 text-white bg-blue-400 rounded-md"
@@ -9,5 +10,14 @@
   >
     Create a Badge!
   </button>
+  <script>
+    // Check if the Nostr extension is available
+    window.onload = function () {
+      if (!window.nostr) {
+        alert("Nostr extension not available. Redirecting to login...");
+        window.location.href = "/login";
+      }
+    };
+  </script>
 </main>
 {{end}}
