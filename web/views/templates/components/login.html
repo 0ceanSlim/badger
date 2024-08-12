@@ -1,0 +1,30 @@
+{{define "login"}}
+<!--<button id="login-button">Login with Nostr</button>
+
+<script>
+  document.getElementById("login-button").onclick = async function () {
+    if (window.nostr) {
+      try {
+        const publicKey = await window.nostr.getPublicKey();
+        console.log("Public Key:", publicKey);
+
+        // Send the public key to the Go backend
+        fetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ publicKey }),
+        })
+          .then((response) => response.json())
+          .then((data) => console.log("Login successful:", data))
+          .catch((error) => console.error("Error:", error));
+      } catch (err) {
+        console.error("Failed to get public key:", err);
+      }
+    } else {
+      alert("Nostr extension not available.");
+    }
+  };
+</script>-->
+{{end}}

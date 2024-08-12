@@ -1,0 +1,56 @@
+{{define "view"}}
+<h1>Create Badge</h1>
+<form id="badge-form">
+  <label for="badge-name">Badge Name:</label>
+  <input
+    class="rounded-md text-textInverted p-2"
+    type="text"
+    id="badge-name"
+    name="badge-name"
+    required
+  /><br /><br />
+
+  <label for="badge-description">Description:</label>
+  <input
+    class="rounded-md text-textInverted p-2"
+    id="badge-description"
+    name="badge-description"
+    required
+  />
+  <br /><br />
+
+  <label for="badge-image">Image URL:</label>
+  <input
+    class="rounded-md text-textInverted p-2"
+    type="text"
+    id="badge-image"
+    name="badge-image"
+    required
+  /><br /><br />
+
+  <label for="badge-thumb">Thumbnail URL:</label>
+  <input
+    class="rounded-md text-textInverted p-2"
+    type="text"
+    id="badge-thumb"
+    name="badge-thumb"
+    required
+  /><br /><br />
+
+  <button type="submit" class="m-2 p-2 text-white bg-purple-500 rounded-md">
+    Create and Send Badge
+  </button>
+</form>
+
+<button
+  hx-get="/"
+  hx-swap="outerHTML"
+  hx-target="body"
+  class="m-2 p-2 text-white bg-blue-400 rounded-md"
+>
+  Return to Dashboard
+</button>
+
+<!-- Move this JavaScript to an external file -->
+<script src="/static/js/badge.js"></script>
+{{end}}
