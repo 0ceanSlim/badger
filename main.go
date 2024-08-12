@@ -28,7 +28,7 @@ func main() {
 	// Function Handlers
 	// Login Handler TO-DO - handle session with pubkey
 	//mux.HandleFunc("/login", handlers.LoginHandler)
-	mux.HandleFunc("/send-badge", handlers.CreateBadgeHandler)
+	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
 
 	fmt.Printf("Server is running on http://localhost:%d\n", cfg.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), mux)
