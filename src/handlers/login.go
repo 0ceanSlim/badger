@@ -24,14 +24,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := User.Get(r, "session-name")
 	session.Values["publicKey"] = publicKey
 
-	// Ensure the session cookie expires when the browser is closed
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   0, // Session expires when the browser is closed
-		HttpOnly: true,
-		Secure:   true, // Ensure this if you're using HTTPS
-	}
-
 	session.Save(r, w)
 
 	// Redirect to the root ("/")
