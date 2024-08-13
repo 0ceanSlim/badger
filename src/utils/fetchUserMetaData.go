@@ -12,6 +12,7 @@ import (
 type NostrContent struct {
 	DisplayName string `json:"display_name"`
 	Picture     string `json:"picture"`
+	About string `json:"about"`
 }
 
 func FetchUserMetadata(publicKey string) (*NostrContent, error) {

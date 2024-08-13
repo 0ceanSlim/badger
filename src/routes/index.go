@@ -22,6 +22,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	
 	displayName, _ := session.Values["displayName"].(string)
 	picture, _ := session.Values["picture"].(string)
+	about, _ := session.Values["about"].(string)
 
 	// Prepare the data to be passed to the template
 	data := types.PageData{
@@ -29,6 +30,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		DisplayName: displayName,
 		Picture:     picture,
 		PublicKey:   publicKey,
+		About:       about,
 	}
 
 	utils.RenderTemplate(w, data, "index.html")

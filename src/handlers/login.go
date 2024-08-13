@@ -44,6 +44,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["publicKey"] = publicKey
 	session.Values["displayName"] = userContent.DisplayName
 	session.Values["picture"] = userContent.Picture
+	session.Values["about"] = userContent.About
 	if err := session.Save(r, w); err != nil {
 		log.Printf("Failed to save session: %v\n", err)
 		http.Error(w, "Failed to save session", http.StatusInternalServerError)

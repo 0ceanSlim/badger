@@ -6,4 +6,5 @@ type PageData struct {
 	PublicKey   string
 	DisplayName string
 	Picture     string
+	About       string
 }
