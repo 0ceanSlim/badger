@@ -20,10 +20,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//// Fetch user metadata from Nostr relays Uncommenting this bricks the login
+	//userEvent, err := utils.FetchUserMetadata(publicKey)
+	//if err != nil {
+	//	http.Error(w, "Failed to fetch user metadata", http.StatusInternalServerError)
+	//	return
+	//}
+
 	// Store the public key in session
 	session, _ := User.Get(r, "session-name")
 	session.Values["publicKey"] = publicKey
-
+	//session.Values["displayName"] = userEvent.Content
 	session.Save(r, w)
 
 	// Redirect to the root ("/")

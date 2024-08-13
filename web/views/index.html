@@ -1,6 +1,7 @@
 {{define "view"}}
 <main class="flex flex-col items-center justify-center p-8">
   <div class="mb-4">You are now viewing the {{.Title}}</div>
+  <div class="mb-4">Welcome, {{.DisplayName}}</div>
   <p>Your Public Key: {{.PublicKey}}</p>
   <button
     hx-get="/badgeform"

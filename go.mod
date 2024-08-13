@@ -18,6 +18,7 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.2.0 // indirect
 	github.com/gorilla/sessions v1.3.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.0.2 // indirect

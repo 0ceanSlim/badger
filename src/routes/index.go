@@ -8,21 +8,20 @@ import (
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the session
 	session, _ := handlers.User.Get(r, "session-name")
 
-	// Check if the user is logged in (i.e., has a public key)
 	publicKey, ok := session.Values["publicKey"].(string)
 	if !ok || publicKey == "" {
-		// If not logged in, redirect to the login page
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	// If logged in, render the dashboard
+	displayName, _ := session.Values["displayName"].(string)
+
 	data := types.PageData{
-		Title:     "Dashboard",
-		PublicKey: publicKey,
+		Title:       "Dashboard",
+		PublicKey:   publicKey,
+		DisplayName: displayName,
 	}
 	utils.RenderTemplate(w, data, "index.html")
 }
