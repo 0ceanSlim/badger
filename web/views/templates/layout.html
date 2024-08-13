@@ -27,7 +27,9 @@
     <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
     <title>Badger - {{.Title}}</title>
   </head>
-  <body class="font-mono text-center text-textPrimary bg-bgPrimary">
+  <body
+    class="p-8 mx-64 my-2 font-mono text-center text-textPrimary bg-bgPrimary"
+  >
     {{template "header" .}} {{template "view" .}} {{template "footer" .}}
   </body>
 </html>
