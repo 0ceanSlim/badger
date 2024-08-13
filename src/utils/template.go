@@ -15,7 +15,7 @@ const (
 
 // Define the common layout templates filenames
 var templateFiles = []string{
-	"#layout.html",
+	"layout.html",
 	"header.html",
 	"footer.html",
 }

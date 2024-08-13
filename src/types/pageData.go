@@ -5,4 +5,5 @@ type PageData struct {
 	Theme       string
 	PublicKey   string
 	DisplayName string
+	Picture     string
 }

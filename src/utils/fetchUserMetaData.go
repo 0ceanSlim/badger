@@ -4,14 +4,20 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/gorilla/websocket"
-
 	"badger/src/types"
+
+	"github.com/gorilla/websocket"
 )
 
-func FetchUserMetadata(publicKey string) (*types.NostrEvent, error) {
+type NostrContent struct {
+	DisplayName string `json:"display_name"`
+	Picture     string `json:"picture"`
+}
+
+func FetchUserMetadata(publicKey string) (*NostrContent, error) {
 	url := "wss://purplepag.es" // Replace with actual relay URL
 
+	log.Printf("Connecting to WebSocket: %s\n", url)
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Printf("Failed to connect to WebSocket: %v\n", err)
@@ -19,25 +25,39 @@ func FetchUserMetadata(publicKey string) (*types.NostrEvent, error) {
 	}
 	defer conn.Close()
 
-	// Subscribe to user's kind:0 events
-	subRequest := types.SubscriptionRequest{
-		Req:     "REQ",
-		SubID:   "sub1",
+	filter := types.SubscriptionFilter{
 		Authors: []string{publicKey},
 		Kinds:   []int{0},
 	}
 
-	if err := conn.WriteJSON(subRequest); err != nil {
+	subRequest := []interface{}{
+		"REQ",
+		"sub1",
+		filter,
+	}
+
+	requestJSON, err := json.Marshal(subRequest)
+	if err != nil {
+		log.Printf("Failed to marshal subscription request: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("Sending subscription request: %s\n", requestJSON)
+
+	if err := conn.WriteMessage(websocket.TextMessage, requestJSON); err != nil {
 		log.Printf("Failed to send subscription request: %v\n", err)
 		return nil, err
 	}
 
 	for {
+		log.Println("Waiting for WebSocket message...")
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("Error reading WebSocket message: %v\n", err)
 			return nil, err
 		}
+
+		log.Printf("Received WebSocket message: %s\n", message)
 
 		var response []interface{}
 		if err := json.Unmarshal(message, &response); err != nil {
@@ -46,16 +66,28 @@ func FetchUserMetadata(publicKey string) (*types.NostrEvent, error) {
 		}
 
 		if response[0] == "EVENT" {
+			// The third element in the array is the actual event data
+			eventData, err := json.Marshal(response[2])
+			if err != nil {
+				log.Printf("Failed to marshal event data: %v\n", err)
+				continue
+			}
+
 			var event types.NostrEvent
-			eventData, _ := json.Marshal(response[1])
 			if err := json.Unmarshal(eventData, &event); err != nil {
 				log.Printf("Failed to parse event data: %v\n", err)
 				continue
 			}
 
-			if event.Kind == 0 {
-				return &event, nil
+			log.Printf("Received Nostr event: %+v\n", event)
+
+			var content NostrContent
+			// Now parse the Content field, which is a JSON string
+			if err := json.Unmarshal([]byte(event.Content), &content); err != nil {
+				log.Printf("Failed to parse content JSON: %v\n", err)
+				continue
 			}
+			return &content, nil
 		}
 	}
 }

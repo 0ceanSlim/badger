@@ -1,13 +1,16 @@
 package routes
 
 import (
+	"net/http"
+
 	"badger/src/handlers"
 	"badger/src/types"
 	"badger/src/utils"
-	"net/http"
 )
 
+
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+
 	session, _ := handlers.User.Get(r, "session-name")
 
 	publicKey, ok := session.Values["publicKey"].(string)
@@ -16,12 +19,17 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
 	displayName, _ := session.Values["displayName"].(string)
+	picture, _ := session.Values["picture"].(string)
 
+	// Prepare the data to be passed to the template
 	data := types.PageData{
 		Title:       "Dashboard",
-		PublicKey:   publicKey,
 		DisplayName: displayName,
+		Picture:     picture,
+		PublicKey:   publicKey,
 	}
+
 	utils.RenderTemplate(w, data, "index.html")
 }
