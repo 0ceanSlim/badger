@@ -22,6 +22,7 @@ func main() {
 	// Login
 	mux.HandleFunc("/login", routes.LoginViewHandler) // Login route
 	mux.HandleFunc("/do-login", handlers.LoginHandler)
+	mux.HandleFunc("/logout", handlers.LogoutHandler) // Logout process
 	// Initialize Routes
 	mux.HandleFunc("/", routes.IndexHandler)
 	mux.HandleFunc("/badgeform", routes.BadgeFormHandler)

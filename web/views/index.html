@@ -27,6 +27,7 @@
       <a
         href="#"
         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        onclick="logout()"
         >Logout</a
       >
     </div>
@@ -51,6 +52,10 @@
     function toggleDropdown() {
       const dropdown = document.getElementById("dropdown");
       dropdown.classList.toggle("hidden");
+    }
+
+    function logout() {
+      window.location.href = "/logout";
     }
 
     // Check if the Nostr extension is available
