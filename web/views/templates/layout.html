@@ -25,6 +25,7 @@
     -->
     <link href="/static/custom.min.css" rel="stylesheet" />
     <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon" />
+
     <title>Badger - {{.Title}}</title>
   </head>
   <body
@@ -32,5 +33,6 @@
   >
     {{template "header" .}} {{template "view" .}} {{template "footer" .}}
   </body>
+  <script src="https://unpkg.com/window.nostr.js/dist/window.nostr.js"></script>
 </html>
 {{end}}
