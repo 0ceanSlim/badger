@@ -1,6 +1,46 @@
 {{define "view"}}
 <div class="container w-1/2 px-4 mx-auto my-8">
-  <h1 class="mb-6 text-3xl font-bold">Create Badge</h1>
+  <h1 class="mb-2 text-3xl font-bold">Create Badge</h1>
+  <div class="relative inline-block my-4 group">
+    <span
+      class="py-4 text-2xl font-semibold text-yellow-600 hover:text-yellow-400 cursor-help group-hover:visible group-hover:opacity-100"
+    >
+      ⚠️ This feature is a Work in Progress
+    </span>
+    <div
+      class="absolute z-10 invisible w-3/4 p-4 mt-2 text-sm transition-opacity duration-200 border rounded-lg shadow-lg opacity-0 bg-bgSecondary border-bgInverted group-hover:opacity-100 group-hover:visible hover:opacity-100 hover:visible"
+    >
+      <p class="mb-2">
+        There is no status indicating if your badge was successfully created,
+        however it's currently being broadcast to:
+      </p>
+      <ul class="pl-5 mb-2 list-disc">
+        <li>wss://offchain.pub</li>
+        <li>wss://nos.lol</li>
+        <li>wss://relay.damus.io</li>
+        <li>wss://relay.mostr.pub</li>
+        <li>wss://nostr.mom</li>
+        <li>wss://relay.primal.net</li>
+      </ul>
+      <p class="mb-2">
+        Do Not click create more than ONCE unless you want to create more than
+        one badge. I promise it's actually working.
+      </p>
+      <p class="mb-2">
+        You can go to
+        <a
+          href="https://badges.page"
+          class="text-purple-500 hover:text-purple-700"
+          >badges.page</a
+        >
+        to view and accept badges until these features are implemented on
+        Badger.
+      </p>
+      <p>
+        Badger will eventually grab your kind10002 Relay list to use instead.
+      </p>
+    </div>
+  </div>
   <form
     id="badge-form"
     class="px-8 pt-6 pb-8 mb-4 rounded shadow-md bg-bgSecondary text-textPrimary"
@@ -70,6 +110,7 @@
     </div>
   </form>
 </div>
+
 <!-- Move this JavaScript to an external file -->
 <script src="/static/js/createBadge.js"></script>
 {{end}}

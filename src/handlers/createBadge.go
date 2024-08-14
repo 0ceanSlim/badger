@@ -11,8 +11,12 @@ import (
 )
 
 var relayURLs = []string{
-	"wss://nostr.happytavern.co",
+	"wss://offchain.pub",
 	"wss://nos.lol",
+	"wss://relay.damus.io",
+	"wss://relay.mostr.pub",
+	"wss://nostr.mom",
+	"wss://relay.primal.net",
 }
 
 func CreateBadgeHandler(w http.ResponseWriter, r *http.Request) {

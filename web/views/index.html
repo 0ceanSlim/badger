@@ -2,7 +2,7 @@
 <div class="absolute flex items-center right-64 top-12">
   <button
     hx-get="/badgeform"
-    class="p-2 mr-4 text-white bg-purple-500 rounded-lg"
+    class="p-2 mr-4 text-white bg-purple-500 rounded-lg hover:bg-purple-700"
     hx-swap="outerHTML"
     hx-target="body"
   >
@@ -12,24 +12,19 @@
     <img
       src="{{.Picture}}"
       alt="Profile Picture"
-      class="w-12 h-12 rounded-full cursor-pointer"
+      class="w-12 h-12 border-4 cursor-pointer rounded-2xl border-bgInverted"
       onclick="toggleDropdown()"
     />
     <div
       id="dropdown"
-      class="absolute right-0 z-20 hidden w-48 mt-2 bg-white rounded-md shadow-xl"
+      class="absolute right-0 z-20 hidden w-48 mt-2 text-sm rounded-md shadow-xl hover:text-textInverted hover:bg-bgInverted hover:rounded-md bg-bgSecondary text-textPrimary"
     >
-      <a
+      <!--<a
         href="#"
-        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        class="block px-4 py-2"
         >Change Theme</a
-      >
-      <a
-        href="#"
-        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        onclick="logout()"
-        >Logout</a
-      >
+      >-->
+      <a href="#" class="block px-4 py-2" onclick="logout()">Logout</a>
     </div>
   </div>
 </div>
