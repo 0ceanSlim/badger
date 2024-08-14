@@ -9,7 +9,7 @@ import (
 )
 
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := handlers.User.Get(r, "session-name")
 

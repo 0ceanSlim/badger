@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func LoginViewHandler(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	data := types.PageData{
 		Title: "Login",
 	}

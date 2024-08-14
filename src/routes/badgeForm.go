@@ -7,7 +7,7 @@ import (
 	types "badger/src/types"
 )
 
-func BadgeFormHandler(w http.ResponseWriter, r *http.Request) {
+func BadgeForm(w http.ResponseWriter, r *http.Request) {
 	data := types.PageData{
 		Title: "Badge Form Page",
 	}
