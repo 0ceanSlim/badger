@@ -1,56 +1,75 @@
 {{define "view"}}
-<h1>Create Badge</h1>
-<form id="badge-form">
-  <label for="badge-name">Badge Name:</label>
-  <input
-    class="p-2 rounded-md text-textInverted"
-    type="text"
-    id="badge-name"
-    name="badge-name"
-    required
-  /><br /><br />
+<div class="container mx-auto my-8 px-4 w-3/4">
+  <h1 class="text-3xl font-bold mb-6">Create Badge</h1>
+  <form
+    id="badge-form"
+    class="bg-bgSecondary text-textPrimary shadow-md rounded px-8 pt-6 pb-8 mb-4"
+  >
+    <div class="mb-4">
+      <label class="block font-bold mb-2" for="badge-name"> Badge Name: </label>
+      <input
+        class="shadow text-textInverted appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-name"
+        name="badge-name"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block font-bold mb-2" for="badge-description">
+        Description:
+      </label>
+      <textarea
+        class="shadow text-textInverted appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        id="badge-description"
+        name="badge-description"
+        required
+      ></textarea>
+    </div>
 
-  <label for="badge-description">Description:</label>
-  <input
-    class="p-2 rounded-md text-textInverted"
-    id="badge-description"
-    name="badge-description"
-    required
-  />
-  <br /><br />
+    <div class="mb-4">
+      <label class="block font-bold mb-2" for="badge-image"> Image URL: </label>
+      <input
+        class="shadow text-textInverted appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-image"
+        name="badge-image"
+        required
+      />
+    </div>
 
-  <label for="badge-image">Image URL:</label>
-  <input
-    class="p-2 rounded-md text-textInverted"
-    type="text"
-    id="badge-image"
-    name="badge-image"
-    required
-  /><br /><br />
+    <div class="mb-4">
+      <label class="block font-bold mb-2" for="badge-thumb">
+        Thumbnail URL:
+      </label>
+      <input
+        class="shadow text-textInverted appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-thumb"
+        name="badge-thumb"
+        required
+      />
+    </div>
 
-  <label for="badge-thumb">Thumbnail URL:</label>
-  <input
-    class="p-2 rounded-md text-textInverted"
-    type="text"
-    id="badge-thumb"
-    name="badge-thumb"
-    required
-  /><br /><br />
-
-  <button type="submit" class="p-2 m-2 text-white bg-purple-500 rounded-md">
-    Create Badge
-  </button>
-</form>
-
-<button
-  hx-get="/"
-  hx-swap="outerHTML"
-  hx-target="body"
-  class="p-2 m-2 text-white bg-blue-400 rounded-md"
->
-  Return to Dashboard
-</button>
-
+    <div class="flex items-center justify-between">
+      <button
+        type="submit"
+        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Create Badge
+      </button>
+      <a
+        href="/"
+        hx-get="/"
+        hx-swap="outerHTML"
+        hx-target="body"
+        class="inline-block align-baseline font-bold text-sm text-purple-500 hover:text-purple-800"
+      >
+        Return to Dashboard
+      </a>
+    </div>
+  </form>
+</div>
 <!-- Move this JavaScript to an external file -->
 <script src="/static/js/createBadge.js"></script>
 {{end}}
