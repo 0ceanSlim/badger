@@ -1,8 +1,8 @@
 {{define "view"}}
-<div class="absolute flex items-center right-64 top-12">
+<div class="absolute right-4 top-4 md:right-64 md:top-12 flex items-center">
   <button
     hx-get="/badgeform"
-    class="p-2 mr-4 text-white bg-purple-500 rounded-lg hover:bg-purple-700"
+    class="p-2 text-sm md:text-base mr-2 md:mr-4 text-white bg-purple-500 rounded-lg hover:bg-purple-700"
     hx-swap="outerHTML"
     hx-target="body"
   >
@@ -12,32 +12,27 @@
     <img
       src="{{.Picture}}"
       alt="Profile Picture"
-      class="w-12 h-12 border-4 cursor-pointer rounded-2xl border-bgInverted"
+      class="w-8 h-8 md:w-12 md:h-12 border-4 cursor-pointer rounded-2xl border-bgInverted"
       onclick="toggleDropdown()"
     />
     <div
       id="dropdown"
       class="absolute right-0 z-20 hidden w-48 mt-2 text-sm rounded-md shadow-xl hover:text-textInverted hover:bg-bgInverted hover:rounded-md bg-bgSecondary text-textPrimary"
     >
-      <!--<a
-        href="#"
-        class="block px-4 py-2"
-        >Change Theme</a
-      >-->
       <a href="#" class="block px-4 py-2" onclick="logout()">Logout</a>
     </div>
   </div>
 </div>
-<main class="flex flex-col my-32">
-  <div class="flex mb-8">
+<main class="flex flex-col my-16 md:my-32">
+  <div class="flex flex-col md:flex-row mb-8">
     <img
       src="{{.Picture}}"
       alt="Profile Picture"
-      class="w-32 h-32 mr-6 border-4 rounded-lg border-bgInverted"
+      class="w-24 h-24 md:w-32 md:h-32 mb-4 md:mb-0 mr-0 md:mr-6 border-4 rounded-lg border-bgInverted"
     />
     <div>
-      <h2 class="mb-2 text-2xl font-semibold">{{.DisplayName}}</h2>
-      <p class="max-w-md text-textMuted">{{.About}}</p>
+      <h2 class="text-xl md:text-2xl mb-2 font-semibold">{{.DisplayName}}</h2>
+      <p class="max-w-xs md:max-w-md text-textMuted">{{.About}}</p>
     </div>
   </div>
 
