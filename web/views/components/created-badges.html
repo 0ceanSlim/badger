@@ -1,9 +1,12 @@
+{{define "createdBadges"}}
 <div>
   <h3 class="mb-4 text-lg font-semibold">Created Badges</h3>
   <ul>
-    <!-- Populate this list with created badges -->
-    <li>Badge X</li>
-    <li>Badge Y</li>
-    <!-- Add more badges here -->
+    {{range .CreatedBadges}}
+    <li>{{.Name}} - {{.Description}}</li>
+    {{else}}
+    <li>No badges created.</li>
+    {{end}}
   </ul>
 </div>
+{{end}}

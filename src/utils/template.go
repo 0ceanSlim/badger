@@ -3,16 +3,26 @@ package utils
 import (
 	"html/template"
 	"net/http"
+	"path/filepath"
 )
 
+type Badge struct {
+	Name        string
+	Description string
+	DateAwarded string
+}
+
 type PageData struct {
-	Title       string
-	Theme       string
-	PublicKey   string
-	DisplayName string
-	Picture     string
-	About       string
-	Relays      RelayList
+	Title           string
+	Theme           string
+	PublicKey       string
+	DisplayName     string
+	Picture         string
+	About           string
+	Relays          RelayList
+	AwardedBadges   []Badge
+	CollectedBadges []Badge
+	CreatedBadges   []Badge
 }
 
 // Define the base directories for views and templates
@@ -33,8 +43,19 @@ var layout = PrependDir(templatesDir, templateFiles)
 
 func RenderTemplate(w http.ResponseWriter, data PageData, view string, components ...string) {
 
-	// Append the specific template for the route
-	templates := append(layout, viewsDir+view)
+	// Define the specific template for the route
+	viewTemplate := filepath.Join(viewsDir, view)
+
+	// Define component templates
+	componentTemplates := []string{
+		filepath.Join(viewsDir, "components", "awarded-badges.html"),
+		filepath.Join(viewsDir, "components", "collected-badges.html"),
+		filepath.Join(viewsDir, "components", "created-badges.html"),
+	}
+
+	// Combine layout, view, and component templates
+	templates := append(layout, viewTemplate)
+	templates = append(templates, componentTemplates...)
 
 	// Parse all templates
 	tmpl, err := template.ParseFiles(templates...)

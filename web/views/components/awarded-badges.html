@@ -1,9 +1,12 @@
+{{define "awardedBadges"}}
 <div>
   <h3 class="mb-4 text-lg font-semibold">Awarded Badges</h3>
   <ul>
-    <!-- Populate this list with awarded badges -->
-    <li>Badge A</li>
-    <li>Badge B</li>
-    <!-- Add more badges here -->
+    {{range .AwardedBadges}}
+    <li>{{.Name}} - {{.Description}} ({{.DateAwarded}})</li>
+    {{else}}
+    <li>No badges awarded.</li>
+    {{end}}
   </ul>
 </div>
+{{end}}

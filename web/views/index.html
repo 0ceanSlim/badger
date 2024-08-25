@@ -62,7 +62,7 @@
     <div class="flex mb-4 border-b border-bgInverted">
       <button
         hx-trigger="load,click"
-        hx-get="/component/collected-badges.html"
+        hx-get="/collected-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"
         class="px-4 py-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
@@ -70,7 +70,7 @@
         Collected Badges
       </button>
       <button
-        hx-get="/component/awarded-badges.html"
+        hx-get="/awarded-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
@@ -78,7 +78,7 @@
         Awarded Badges
       </button>
       <button
-        hx-get="/component/created-badges.html"
+        hx-get="/created-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
@@ -88,7 +88,10 @@
     </div>
 
     <!-- Container for Tab Content -->
-    <div id="tab-content" class="p-4">{{.BadgeTab}}</div>
+    <div id="tab-content" class="p-4">
+      {{template "awardedBadges" .}} {{template "collectedBadges" .}} {{template
+      "createdBadges" .}}
+    </div>
   </div>
 
   <script>
