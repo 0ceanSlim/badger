@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/gob" // Import the gob package
+	"encoding/gob"
 	"log"
 	"net/http"
 
@@ -35,27 +35,32 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Received publicKey: %s\n", publicKey)
 
-	// Fetch user metadata from Nostr relays
-	userContent, err := utils.FetchUserMetadata(publicKey)
-	if err != nil {
-		log.Printf("Failed to fetch user metadata: %v\n", err)
-		http.Error(w, "Failed to fetch user metadata", http.StatusInternalServerError)
-		return
+	// Fetch user relay list from an initial relay
+	initialRelays := []string{
+		"wss://purplepag.es", // Add any initial relay URLs here
 	}
-
-	log.Printf("Fetched user metadata: %+v\n", userContent)
-
-	// Fetch user relay list
-	userRelays, err := utils.FetchUserRelays(publicKey)
+	userRelays, err := utils.FetchUserRelays(publicKey, initialRelays)
 	if err != nil {
 		log.Printf("Failed to fetch user relays: %v\n", err)
 		http.Error(w, "Failed to fetch user relays", http.StatusInternalServerError)
 		return
 	}
-
 	log.Printf("Fetched user relays: %+v\n", userRelays)
 
-	// Store the public key, user data, and relays in session
+	// Combine all relays (read, write, both) into a single slice
+	allRelays := append(userRelays.Read, userRelays.Write...)
+	allRelays = append(allRelays, userRelays.Both...)
+
+	// Fetch user metadata from the combined relay list
+	userContent, err := utils.FetchUserMetadata(publicKey, allRelays)
+	if err != nil {
+		log.Printf("Failed to fetch user metadata: %v\n", err)
+		http.Error(w, "Failed to fetch user metadata", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Fetched user metadata: %+v\n", userContent)
+
+	// Store the public key, user data, and relays in the session
 	session, _ := User.Get(r, "session-name")
 	session.Values["publicKey"] = publicKey
 	session.Values["displayName"] = userContent.DisplayName

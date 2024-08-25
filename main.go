@@ -29,6 +29,10 @@ func main() {
 	mux.HandleFunc("/badgeform", routes.BadgeForm)
 	mux.HandleFunc("/relay-list", routes.RelayList)
 
+	mux.HandleFunc("/collected-badges", routes.CollectedBadges)
+	mux.HandleFunc("/awarded-badges", routes.AwardedBadges)
+	mux.HandleFunc("/created-badges", routes.CreatedBadges)
+
 	// Function Handlers
 	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
 
