@@ -1,12 +1,10 @@
 {{define "header"}}
-<header class="flex flex-col items-center justify-between mb-8 md:flex-row">
+<header class="flex items-center justify-between mb-8">
   <a href="/" class="text-4xl font-bold md:text-6xl">Badger</a>
-  <div
-    class="absolute flex flex-col items-center md:flex-row right-4 top-20 md:top-12 md:right-64"
-  >
+  <div class="flex items-center">
     <button
       hx-get="/badgeform"
-      class="p-2 mb-4 mr-2 text-sm text-white bg-purple-500 rounded-lg md:text-base md:mb-0 hover:bg-purple-700"
+      class="p-2 mr-4 text-sm text-white bg-purple-500 rounded-lg md:text-base hover:bg-purple-700"
       hx-swap="outerHTML"
       hx-target="body"
     >
