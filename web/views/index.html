@@ -19,9 +19,26 @@
     />
     <div
       id="dropdown"
-      class="absolute right-0 z-20 hidden w-48 mt-2 text-sm rounded-md shadow-xl hover:text-textInverted hover:bg-bgInverted hover:rounded-md bg-bgSecondary text-textPrimary"
+      class="absolute right-0 z-20 hidden w-48 mt-2 text-sm rounded-md shadow-xl bg-bgSecondary text-textPrimary"
     >
-      <a href="#" class="block px-4 py-2" onclick="logout()">Logout</a>
+      <a
+        href="relay-list"
+        class="block px-4 py-2 hover:text-textInverted hover:bg-bgInverted hover:rounded-md"
+        hx-trigger="click"
+        hx-get="/relay-list"
+        hx-swap="outerHTML"
+        hx-target="body"
+        >Relays</a
+      >
+      <a
+        href="logout"
+        class="block px-4 py-2 hover:text-textInverted hover:bg-bgInverted hover:rounded-md"
+        hx-trigger="click"
+        hx-get="/logout"
+        hx-swap="outerHTML"
+        hx-target="body"
+        >Logout</a
+      >
     </div>
   </div>
 </div>
@@ -44,10 +61,6 @@
     function toggleDropdown() {
       const dropdown = document.getElementById("dropdown");
       dropdown.classList.toggle("hidden");
-    }
-
-    function logout() {
-      window.location.href = "/logout";
     }
 
     // Check if the Nostr extension is available

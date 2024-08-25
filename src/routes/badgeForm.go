@@ -3,12 +3,10 @@ package routes
 import (
 	"badger/src/utils"
 	"net/http"
-
-	types "badger/src/types"
 )
 
 func BadgeForm(w http.ResponseWriter, r *http.Request) {
-	data := types.PageData{
+	data := utils.PageData{
 		Title: "Badge Form Page",
 	}
 

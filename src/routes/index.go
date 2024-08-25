@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"badger/src/handlers"
-	"badger/src/types"
 	"badger/src/utils"
 )
-
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
@@ -19,13 +17,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	displayName, _ := session.Values["displayName"].(string)
 	picture, _ := session.Values["picture"].(string)
 	about, _ := session.Values["about"].(string)
 
 	// Prepare the data to be passed to the template
-	data := types.PageData{
+	data := utils.PageData{
 		Title:       "Dashboard",
 		DisplayName: displayName,
 		Picture:     picture,

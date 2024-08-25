@@ -6,33 +6,41 @@ import (
 	"log"
 	"net/http"
 
+	"badger/src/utils" // Import the utils package to use RelayList
+
 	"github.com/nbd-wtf/go-nostr"
 	"golang.org/x/net/websocket"
 )
 
-var relayURLs = []string{
-	"wss://offchain.pub",
-	"wss://nos.lol",
-	"wss://relay.damus.io",
-	"wss://relay.mostr.pub",
-	"wss://nostr.mom",
-	"wss://relay.primal.net",
-}
-
 func CreateBadgeHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := User.Get(r, "session-name")
+
+	// Fetch the relay list from the session
+	relays, ok := session.Values["relays"].(utils.RelayList)
+	if !ok {
+		log.Println("No relay list found in session")
+		http.Error(w, "Relay list not found", http.StatusInternalServerError)
+		return
+	}
+
+	// Combine all user relays (read, write, both)
+	allRelays := append(relays.Read, relays.Write...)
+	allRelays = append(allRelays, relays.Both...)
+
 	var event nostr.Event
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	sendEventToRelays(event)
+	// Send the event to the user's relays
+	sendEventToRelays(event, allRelays)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": "badge sent"})
 }
 
-func sendEventToRelays(event nostr.Event) {
+func sendEventToRelays(event nostr.Event, relayURLs []string) {
 	for _, relayURL := range relayURLs {
 		go func(relayURL string) {
 			ws, err := websocket.Dial(relayURL, "", "http://localhost/")

@@ -3,9 +3,17 @@ package utils
 import (
 	"html/template"
 	"net/http"
-
-	types "badger/src/types"
 )
+
+type PageData struct {
+	Title       string
+	Theme       string
+	PublicKey   string
+	DisplayName string
+	Picture     string
+	About       string
+	Relays      RelayList
+}
 
 // Define the base directories for views and templates
 const (
@@ -23,7 +31,7 @@ var templateFiles = []string{
 // Initialize the common templates with full paths
 var layout = PrependDir(templatesDir, templateFiles)
 
-func RenderTemplate(w http.ResponseWriter, data types.PageData, view string) {
+func RenderTemplate(w http.ResponseWriter, data PageData, view string) {
 
 	// Append the specific template for the route
 	templates := append(layout, viewsDir+view)

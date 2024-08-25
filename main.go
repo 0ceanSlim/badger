@@ -21,13 +21,14 @@ func main() {
 	mux := http.NewServeMux()
 	// Login / Logout
 	mux.HandleFunc("/login", routes.Login) // Login route
-	mux.HandleFunc("/do-login", handlers.LoginHandler) 
+	mux.HandleFunc("/do-login", handlers.LoginHandler)
 	mux.HandleFunc("/logout", handlers.LogoutHandler) // Logout process
 
 	// Initialize Routes
 	mux.HandleFunc("/", routes.Index)
 	mux.HandleFunc("/badgeform", routes.BadgeForm)
-	
+	mux.HandleFunc("/relay-list", routes.RelayList)
+
 	// Function Handlers
 	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
 
