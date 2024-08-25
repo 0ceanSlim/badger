@@ -7,9 +7,6 @@ import (
 	"net/http"
 )
 
-// Assuming you have initialized a session store somewhere globally
-//var User = sessions.NewCookieStore([]byte("your-secret-key"))
-
 func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 	// Retrieve session
 	session, _ := handlers.User.Get(r, "session-name")

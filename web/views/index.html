@@ -19,7 +19,6 @@
   >
     <div class="flex mb-4 border-b border-bgInverted">
       <button
-        hx-trigger="load,click"
         hx-get="/collected-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"
@@ -46,10 +45,7 @@
     </div>
 
     <!-- Container for Tab Content -->
-    <div id="tab-content" class="p-4">
-      {{template "awardedBadges" .}} {{template "collectedBadges" .}} {{template
-      "createdBadges" .}}
-    </div>
+    <div id="tab-content" class="p-4"></div>
   </div>
 
   <script>

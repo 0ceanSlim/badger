@@ -37,7 +37,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Fetch user relay list from an initial relay
 	initialRelays := []string{
-		"wss://purplepag.es", // Add any initial relay URLs here
+		"wss://purplepag.es", "wss://relay.damus.io", "wss://nos.lol", "wss://relay.primal.net", "wss://relay.nostr.band", "wss://offchain.pub", // Add any initial relay URLs here
 	}
 	userRelays, err := utils.FetchUserRelays(publicKey, initialRelays)
 	if err != nil {
