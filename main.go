@@ -1,6 +1,7 @@
 package main
 
 import (
+	"badger/src/components"
 	"badger/src/handlers"
 	"badger/src/routes"
 	"badger/src/utils"
@@ -29,9 +30,10 @@ func main() {
 	mux.HandleFunc("/badgeform", routes.BadgeForm)
 	mux.HandleFunc("/relay-list", routes.RelayList)
 
-	mux.HandleFunc("/collected-badges", routes.RenderCollectedBadges)
-	mux.HandleFunc("/awarded-badges", routes.RenderAwardedBadges)
-	mux.HandleFunc("/created-badges", routes.RenderCreatedBadges)
+	// Render component htmls
+	mux.HandleFunc("/collected-badges", components.RenderCollectedBadges)
+	mux.HandleFunc("/awarded-badges", components.RenderAwardedBadges)
+	mux.HandleFunc("/created-badges", components.RenderCreatedBadges)
 
 	// Function Handlers
 	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
