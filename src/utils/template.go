@@ -31,7 +31,7 @@ var templateFiles = []string{
 // Initialize the common templates with full paths
 var layout = PrependDir(templatesDir, templateFiles)
 
-func RenderTemplate(w http.ResponseWriter, data PageData, view string) {
+func RenderTemplate(w http.ResponseWriter, data PageData, view string, components ...string) {
 
 	// Append the specific template for the route
 	templates := append(layout, viewsDir+view)

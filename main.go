@@ -29,15 +29,14 @@ func main() {
 	mux.HandleFunc("/badgeform", routes.BadgeForm)
 	mux.HandleFunc("/relay-list", routes.RelayList)
 
-	mux.HandleFunc("/collected-badges", routes.CollectedBadges)
-	mux.HandleFunc("/awarded-badges", routes.AwardedBadges)
-	mux.HandleFunc("/created-badges", routes.CreatedBadges)
-
 	// Function Handlers
 	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
 
 	// Serve Static Files
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
+	// Serve HTML files from the components directory
+	mux.Handle("/component/", http.StripPrefix("/component/", http.FileServer(http.Dir("web/views/components"))))
 
 	fmt.Printf("Server is running on http://localhost:%d\n", cfg.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), mux)

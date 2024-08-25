@@ -8,7 +8,6 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-
 	session, _ := handlers.User.Get(r, "session-name")
 
 	publicKey, ok := session.Values["publicKey"].(string)
