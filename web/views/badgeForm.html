@@ -35,6 +35,19 @@
     class="px-8 pt-6 pb-8 mb-4 rounded shadow-md bg-bgSecondary text-textPrimary"
   >
     <div class="mb-4">
+      <label class="block mb-2 font-bold" for="unique-name">
+        Unique Name:
+      </label>
+      <input
+        class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        type="text"
+        id="unique-name"
+        name="unique-name"
+        placeholder="bravery"
+        required
+      />
+    </div>
+    <div class="mb-4">
       <label class="block mb-2 font-bold" for="badge-name"> Badge Name: </label>
       <input
         class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
@@ -42,6 +55,7 @@
         id="badge-name"
         name="badge-name"
         required
+        placeholder="Medal of Bravery"
       />
     </div>
     <div class="mb-4">
@@ -53,17 +67,19 @@
         id="badge-description"
         name="badge-description"
         required
+        placeholder="Awarded to users demonstrating bravery"
       ></textarea>
     </div>
 
     <div class="mb-4">
       <label class="block mb-2 font-bold" for="badge-image"> Image URL: </label>
       <input
-        class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        class="w-full placeholder:text-xs px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
         type="text"
         id="badge-image"
         name="badge-image"
         required
+        placeholder="https://image-server/bravery_1024x1024.png"
       />
     </div>
 
@@ -72,11 +88,12 @@
         Thumbnail URL:
       </label>
       <input
-        class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        class="w-full placeholder:text-xs px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
         type="text"
         id="badge-thumb"
         name="badge-thumb"
         required
+        placeholder="https://image-server/bravery_256x256.png"
       />
     </div>
 

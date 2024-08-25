@@ -1,6 +1,7 @@
 document.getElementById("badge-form").onsubmit = async function (event) {
   event.preventDefault();
-//ned to implement the name of the badge! 
+
+  const uniqueName = document.getElementById("unique-name").value;
   const badgeName = document.getElementById("badge-name").value;
   const badgeDescription = document.getElementById("badge-description").value;
   const badgeImage = document.getElementById("badge-image").value;
@@ -9,7 +10,8 @@ document.getElementById("badge-form").onsubmit = async function (event) {
   const badgeEvent = {
     kind: 30009, // Badge Definition kind
     tags: [
-      ["d", badgeName],
+      ["d", uniqueName],
+      ["name", badgeName]
       ["description", badgeDescription],
       ["image", badgeImage, "1024x1024"],
       ["thumb", badgeThumb, "256x256"],
