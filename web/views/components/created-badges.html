@@ -1,12 +1,31 @@
 {{define "createdBadges"}}
-<div>
-  <h3 class="mb-4 text-lg font-semibold">Created Badges</h3>
-  <ul>
+<div class="container mx-auto px-4 py-8">
+  {{if .CreatedBadges}}
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+  >
     {{range .CreatedBadges}}
-    <li>{{.Name}} - {{.Description}}</li>
-    {{else}}
-    <li>No badges created.</li>
+    <div
+      class="bg-bgPrimary rounded-lg shadow-md p-4 flex flex-col aspect-square items-center relative"
+    >
+      <div class="relative group">
+        <img
+          src="{{.ThumbURL}}"
+          alt="{{.Name}}"
+          class="w-32 h-32 object-cover rounded-md mb-3"
+        />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md"
+        >
+          <p class="text-white text-xs p-2 text-center">{{.Description}}</p>
+        </div>
+      </div>
+      <h4 class="text-lg font-semibold mb-2">{{.Name}}</h4>
+    </div>
     {{end}}
-  </ul>
+  </div>
+  {{else}}
+  <p class="text-red italic">No badges created.</p>
+  {{end}}
 </div>
 {{end}}

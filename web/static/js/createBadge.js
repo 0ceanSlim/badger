@@ -1,6 +1,6 @@
 document.getElementById("badge-form").onsubmit = async function (event) {
   event.preventDefault();
-
+//ned to implement the name of the badge! 
   const badgeName = document.getElementById("badge-name").value;
   const badgeDescription = document.getElementById("badge-description").value;
   const badgeImage = document.getElementById("badge-image").value;

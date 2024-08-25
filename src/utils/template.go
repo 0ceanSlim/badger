@@ -6,12 +6,6 @@ import (
 	"path/filepath"
 )
 
-type Badge struct {
-	Name        string
-	Description string
-	DateAwarded string
-}
-
 type PageData struct {
 	Title           string
 	Theme           string
