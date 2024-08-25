@@ -27,5 +27,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		About:       about,
 	}
 
-	utils.RenderTemplate(w, data, "index.html")
+	utils.RenderTemplate(w, data, "index.html", false)
 }

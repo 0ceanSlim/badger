@@ -1,5 +1,48 @@
 {{define "header"}}
 <header class="flex flex-col items-center justify-between mb-8 md:flex-row">
   <a href="/" class="text-4xl font-bold md:text-6xl">Badger</a>
+  <div
+    class="absolute flex flex-col items-center md:flex-row right-4 top-20 md:top-12 md:right-64"
+  >
+    <button
+      hx-get="/badgeform"
+      class="p-2 mb-4 mr-2 text-sm text-white bg-purple-500 rounded-lg md:text-base md:mb-0 hover:bg-purple-700"
+      hx-swap="outerHTML"
+      hx-target="body"
+    >
+      Create a Badge!
+    </button>
+    <div class="relative">
+      <img
+        src="/static/img/hamburger.png"
+        alt="Hamburger Menu"
+        class="w-6 h-6 cursor-pointer md:w-10 md:h-10"
+        onclick="toggleDropdown()"
+      />
+      <div
+        id="dropdown"
+        class="absolute right-0 z-20 hidden w-48 mt-2 text-sm rounded-md shadow-xl bg-bgSecondary text-textPrimary"
+      >
+        <a
+          href="relay-list"
+          class="block px-4 py-2 hover:text-textInverted hover:bg-bgInverted hover:rounded-md"
+          hx-trigger="click"
+          hx-get="/relay-list"
+          hx-swap="outerHTML"
+          hx-target="body"
+          >Relays</a
+        >
+        <a
+          href="logout"
+          class="block px-4 py-2 hover:text-textInverted hover:bg-bgInverted hover:rounded-md"
+          hx-trigger="click"
+          hx-get="/logout"
+          hx-swap="outerHTML"
+          hx-target="body"
+          >Logout</a
+        >
+      </div>
+    </div>
+  </div>
 </header>
 {{end}}

@@ -35,8 +35,9 @@ var templateFiles = []string{
 // Initialize the common templates with full paths
 var layout = PrependDir(templatesDir, templateFiles)
 
-func RenderTemplate(w http.ResponseWriter, data PageData, view string, components ...string) {
+var loginLayout = PrependDir(templatesDir, []string{"login-layout.html", "footer.html"})
 
+func RenderTemplate(w http.ResponseWriter, data PageData, view string, useLoginLayout bool, components ...string) {
 	// Define the specific template for the route
 	viewTemplate := filepath.Join(viewsDir, view)
 
@@ -47,8 +48,12 @@ func RenderTemplate(w http.ResponseWriter, data PageData, view string, component
 		filepath.Join(viewsDir, "components", "created-badges.html"),
 	}
 
-	// Combine layout, view, and component templates
-	templates := append(layout, viewTemplate)
+	var templates []string
+	if useLoginLayout {
+		templates = append(loginLayout, viewTemplate)
+	} else {
+		templates = append(layout, viewTemplate)
+	}
 	templates = append(templates, componentTemplates...)
 
 	// Parse all templates
@@ -58,8 +63,12 @@ func RenderTemplate(w http.ResponseWriter, data PageData, view string, component
 		return
 	}
 
-	// Execute the "layout" template
-	err = tmpl.ExecuteTemplate(w, "layout", data)
+	// Execute the appropriate layout template
+	layoutName := "layout"
+	if useLoginLayout {
+		layoutName = "login-layout"
+	}
+	err = tmpl.ExecuteTemplate(w, layoutName, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

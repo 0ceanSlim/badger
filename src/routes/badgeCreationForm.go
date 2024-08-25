@@ -11,5 +11,5 @@ func BadgeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call RenderTemplate with the specific template for this route
-	utils.RenderTemplate(w, data, "badgeForm.html")
+	utils.RenderTemplate(w, data, "badgeForm.html", false)
 }

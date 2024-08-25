@@ -35,5 +35,5 @@ func RelayList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template
-	utils.RenderTemplate(w, data, "relayList.html")
+	utils.RenderTemplate(w, data, "relayList.html", false)
 }
