@@ -3,17 +3,23 @@
   <div class="container px-4 py-8 mx-auto">
     {{if .CreatedBadges}}
     <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
     >
       {{range .CreatedBadges}}
+
       <div
-        class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary aspect-square"
+        class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary"
       >
+        <button
+          class="p-2 m-2 mx-2 text-sm bg-red-600 rounded-md hover:bg-red-800 t-2 r-2"
+        >
+          delete
+        </button>
         <div class="relative group">
           <img
             src="{{.ThumbURL}}"
             alt="{{.Name}}"
-            class="object-cover w-32 h-32 mb-3 rounded-md"
+            class="object-cover w-48 h-48 mb-3 border-4 rounded-md border-bgInverted"
           />
           <div
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-75 rounded-md opacity-0 group-hover:opacity-100"
@@ -22,7 +28,20 @@
           </div>
         </div>
         <h4 class="mb-2 text-lg font-semibold">{{.Name}}</h4>
+        <div class="flex">
+          <button
+            class="p-2 mx-2 text-sm bg-green-600 rounded-md hover:bg-green-800"
+          >
+            update
+          </button>
+          <button
+            class="p-2 mx-2 text-sm bg-blue-600 rounded-md hover:bg-blue-800"
+          >
+            award
+          </button>
+        </div>
       </div>
+
       {{end}}
     </div>
     {{else}}
