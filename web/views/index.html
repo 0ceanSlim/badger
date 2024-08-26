@@ -35,6 +35,7 @@
         Awarded Badges
       </button>
       <button
+        hx-trigger="click,load"
         hx-get="/created-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"

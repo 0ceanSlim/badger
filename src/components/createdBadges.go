@@ -5,7 +5,16 @@ import (
 	"badger/src/utils"
 	"html/template"
 	"net/http"
+	"sync"
 )
+
+// Cache for storing badges without expiration
+var badgesCache = struct {
+	sync.RWMutex
+	data map[string]utils.PageData
+}{
+	data: make(map[string]utils.PageData),
+}
 
 func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 	// Retrieve session
@@ -18,7 +27,28 @@ func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve relays from session
+	// Check if cache should be cleared
+	clearCache := r.URL.Query().Get("clear_cache")
+
+	if clearCache == "true" {
+		// Clear the cache for this user
+		badgesCache.Lock()
+		delete(badgesCache.data, publicKey)
+		badgesCache.Unlock()
+	}
+
+	// Check cache after potential clearing
+	badgesCache.RLock()
+	cachedData, found := badgesCache.data[publicKey]
+	badgesCache.RUnlock()
+
+	if found && clearCache != "true" {
+		// Serve from cache
+		renderTemplate(w, cachedData)
+		return
+	}
+
+	// Cache miss or cleared: Retrieve relays from session
 	relays, ok := session.Values["relays"].(utils.RelayList)
 	if !ok {
 		http.Error(w, "No relays found in session", http.StatusInternalServerError)
@@ -41,9 +71,18 @@ func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 		CreatedBadges: badges,
 	}
 
+	// Store in cache
+	badgesCache.Lock()
+	badgesCache.data[publicKey] = data
+	badgesCache.Unlock()
+
 	// Render the component
+	renderTemplate(w, data)
+}
+
+func renderTemplate(w http.ResponseWriter, data utils.PageData) {
 	tmpl := template.Must(template.ParseFiles("web/views/components/created-badges.html"))
-	err = tmpl.ExecuteTemplate(w, "createdBadges", data)
+	err := tmpl.ExecuteTemplate(w, "createdBadges", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
