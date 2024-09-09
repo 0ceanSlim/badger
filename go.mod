@@ -3,7 +3,7 @@ module badger
 go 1.22.2
 
 require (
-	github.com/nbd-wtf/go-nostr v0.34.5
+	github.com/nbd-wtf/go-nostr v0.35.0
 	golang.org/x/net v0.28.0
 )
 

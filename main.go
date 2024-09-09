@@ -37,6 +37,8 @@ func main() {
 
 	// Function Handlers
 	mux.HandleFunc("/create-badge", handlers.CreateBadgeHandler)
+	mux.HandleFunc("/delete-badge", handlers.DeleteBadgeHandler)
+	mux.HandleFunc("/delete-signed-badge", handlers.DeleteSignedBadgeHandler)
 
 	// Serve Static Files
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
