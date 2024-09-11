@@ -11,7 +11,7 @@ document.getElementById("badge-form").onsubmit = async function (event) {
     kind: 30009, // Badge Definition kind
     tags: [
       ["d", uniqueName],
-      ["name", badgeName]
+      ["name", badgeName],
       ["description", badgeDescription],
       ["image", badgeImage, "1024x1024"],
       ["thumb", badgeThumb, "256x256"],
