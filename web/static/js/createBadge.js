@@ -1,4 +1,5 @@
 document.getElementById("badge-form").onsubmit = async function (event) {
+  console.log("Form submitted"); // Check if this logs
   event.preventDefault();
 
   const uniqueName = document.getElementById("unique-name").value;
@@ -21,6 +22,8 @@ document.getElementById("badge-form").onsubmit = async function (event) {
   };
 
   if (window.nostr) {
+    console.log("Nostr extension is available.");
+
     try {
       const signedEvent = await window.nostr.signEvent(badgeEvent);
       console.log("Signed Event:", signedEvent);
