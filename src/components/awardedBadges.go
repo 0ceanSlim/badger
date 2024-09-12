@@ -7,11 +7,11 @@ import (
 )
 
 func RenderAwardedBadges(w http.ResponseWriter, r *http.Request) {
-	// Prepare data
+	// Prepare data with the correct type
 	data := utils.PageData{
-		AwardedBadges: []utils.Badge{
-			//{Name: "Badge A", Description: "Description A", DateAwarded: "2024-08-25"},
-			//{Name: "Badge B", Description: "Description B", DateAwarded: "2024-08-24"},
+		AwardedBadges: []utils.AwardedBadge{
+			{Name: "Badge A", Description: "Description A", DateAwarded: "2024-08-25"},
+			{Name: "Badge B", Description: "Description B", DateAwarded: "2024-08-24"},
 			// Add more badges as needed
 		},
 	}

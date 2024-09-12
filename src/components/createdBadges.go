@@ -44,7 +44,7 @@ func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 
 	if found && clearCache != "true" {
 		// Serve from cache
-		renderTemplate(w, cachedData)
+		renderCreatedBadges(w, cachedData)
 		return
 	}
 
@@ -77,10 +77,10 @@ func RenderCreatedBadges(w http.ResponseWriter, r *http.Request) {
 	badgesCache.Unlock()
 
 	// Render the component
-	renderTemplate(w, data)
+	renderCreatedBadges(w, data)
 }
 
-func renderTemplate(w http.ResponseWriter, data utils.PageData) {
+func renderCreatedBadges(w http.ResponseWriter, data utils.PageData) {
 	tmpl := template.Must(template.ParseFiles("web/views/components/created-badges.html"))
 	err := tmpl.ExecuteTemplate(w, "createdBadges", data)
 	if err != nil {

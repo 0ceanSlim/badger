@@ -15,10 +15,11 @@
 
   <!-- Tabbed Container -->
   <div
-    class="w-full max-w-4xl p-4 mx-auto bg-bgSecondary text-textPrimary rounded-lg shadow-md"
+    class="w-full max-w-4xl p-4 mx-auto rounded-lg shadow-md bg-bgSecondary text-textPrimary"
   >
     <div class="flex mb-4 border-b border-bgInverted">
       <button
+        hx-trigger="load,click"
         hx-get="/collected-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"
@@ -35,7 +36,7 @@
         Awarded Badges
       </button>
       <button
-        hx-trigger="click,load"
+        hx-trigger="click"
         hx-get="/created-badges"
         hx-target="#tab-content"
         hx-swap="innerHTML"

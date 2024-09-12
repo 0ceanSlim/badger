@@ -1,26 +1,25 @@
-// src/utils/badges.go
 package utils
 
 import (
 	"encoding/json"
 	"log"
+	"strings"
 
 	"badger/src/types"
 
 	"github.com/gorilla/websocket"
 )
 
-type CreatedBadge struct {
-	Name        string
-	Description string
-	ImageURL    string
-	ThumbURL    string
-	EventID     string // Add EventID to track duplicates
+type CollectedBadge struct {
+    BadgeType  string // Name or type of the badge
+    AwardedBy  string // Who awarded the badge
+    EventID    string
+    ThumbURL   string // Add this if it exists
 }
 
-// FetchCreatedBadges fetches all badges created by a user from their relays, filtering duplicates
-func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, error) {
-	var badges []CreatedBadge
+// FetchCollectedBadges fetches all badges collected by a user from their relays, filtering duplicates
+func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, error) {
+	var badges []CollectedBadge
 	seenEventIDs := make(map[string]bool)
 
 	for _, url := range relays {
@@ -34,12 +33,12 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 
 		filter := types.SubscriptionFilter{
 			Authors: []string{publicKey},
-			Kinds:   []int{30009}, // Badge creation event
+			Kinds:   []int{30008}, // Badge receipt event
 		}
 
 		subRequest := []interface{}{
 			"REQ",
-			"sub1",
+			"sub2",
 			filter,
 		}
 
@@ -73,7 +72,7 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 			}
 
 			if response[0] == "EVENT" {
-				// The third element in the array is the actual event data
+				// Parse the event data
 				eventData, err := json.Marshal(response[2])
 				if err != nil {
 					log.Printf("Failed to marshal event data: %v\n", err)
@@ -91,20 +90,20 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 					log.Printf("Duplicate event ID found: %s, skipping...", event.ID)
 					continue
 				}
-				seenEventIDs[event.ID] = true // Mark this event ID as seen
+				seenEventIDs[event.ID] = true
 
-				// Parse badge data from the event's tags
-				badge := CreatedBadge{EventID: event.ID} // Store the event ID
+				// Parse collected badge data
+				var badge CollectedBadge
+				badge.EventID = event.ID
 				for _, tag := range event.Tags {
 					switch tag[0] {
-					case "name":
-						badge.Name = tag[1]
-					case "description":
-						badge.Description = tag[1]
-					case "image":
-						badge.ImageURL = tag[1]
-					case "thumb":
-						badge.ThumbURL = tag[1]
+					case "a":
+						// "a" tag has the badge type and awarding user's pubkey (e.g., "30009:alice:bravery")
+						badgeParts := strings.Split(tag[1], ":")
+						if len(badgeParts) >= 3 {
+							badge.AwardedBy = badgeParts[1]
+							badge.BadgeType = badgeParts[2]
+						}
 					}
 				}
 				badges = append(badges, badge)
