@@ -12,19 +12,17 @@
       >
         <div class="relative group">
           <img
-            src="{{.ThumbURL}}"
+            src="{{.ImageURL}}"
             alt="{{.BadgeType}}"
             class="object-cover w-48 h-48 mb-3 border-4 rounded-md border-bgInverted"
           />
           <div
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-75 rounded-md opacity-0 group-hover:opacity-100"
           >
-            <p class="p-2 text-xs text-center text-white">
-              {{.AwardedBy}} awarded this badge
-            </p>
+            <p class="p-2 text-xs text-center text-white">{{.Description}}</p>
           </div>
         </div>
-        <h4 class="mb-2 text-lg font-semibold">{{.BadgeType}}</h4>
+        <h4 class="mb-2 text-lg font-semibold">{{.Name}}</h4>
         <p class="text-sm text-center">{{.AwardedBy}}</p>
       </div>
 

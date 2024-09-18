@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
@@ -16,10 +15,13 @@ type CollectedBadge struct {
 	BadgeType   string // Badge type from the "a" tag
 	AwardedBy   string // Awarding pubkey from the "a" tag
 	EventID     string // Event ID from the "e" tag (badge award event)
+	Name        string // Badge name from the 30009 event
+	Description string // Badge description from the 30009 event
+	ImageURL    string // Full-size badge image URL fetched from the 30009 event
 	ThumbURL    string // Badge thumbnail URL fetched from the 30009 event
 	CreatedAt   int64  // Event creation time
-	Description string // Badge description fetched from the 30009 event
 }
+
 
 // FetchCollectedBadges fetches badges from multiple relays.
 func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, error) {
@@ -34,6 +36,7 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 			log.Printf("Failed to connect to WebSocket: %v\n", err)
 			continue
 		}
+		defer conn.Close()
 
 		filter := types.SubscriptionFilter{
 			Authors: []string{publicKey},
@@ -74,7 +77,6 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 			}
 
 			if response[0] == "EVENT" {
-				// Process the event message
 				eventData, err := json.Marshal(response[2])
 				if err != nil {
 					log.Printf("Failed to marshal event data: %v\n", err)
@@ -112,18 +114,19 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 								log.Printf("Fallback relay URL used: %s\n", relay)
 							}
 
-							// Fetch badge details
+							// Fetch badge details from the relay
 							badgeDetails, err := fetchBadgeDetails(relay, eventID, badgeType)
 							if err != nil {
 								log.Printf("Failed to fetch badge details: %v\n", err)
 								continue
 							}
 
-							// Update the latest badge
+							// Update the latest badge if newer
 							if existingBadge, exists := latestBadges[eventID]; !exists || badgeDetails.CreatedAt > existingBadge.CreatedAt {
 								latestBadges[eventID] = badgeDetails
 							}
 
+							// Maintain order of events
 							if !contains(eventOrder, eventID) {
 								eventOrder = append(eventOrder, eventID)
 							}
@@ -136,7 +139,6 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 				break
 			}
 		}
-		defer conn.Close()
 	}
 
 	// Collect badges in order of their event IDs
@@ -149,29 +151,27 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 	return collectedBadges, nil
 }
 
-// fetchBadgeDetails retrieves badge details using the relay and event ID
-func fetchBadgeDetails(relay string, eventID string, badgeType string) (CollectedBadge, error) {
-	var badge CollectedBadge
-	badge.BadgeType = badgeType
-
-	relay = strings.TrimSpace(relay)
-	log.Printf("Relay URL for fetching badge details: %s\n", relay)
-
-	if relay == "" || (!strings.HasPrefix(relay, "ws://") && !strings.HasPrefix(relay, "wss://")) {
-		log.Printf("Invalid or empty relay URL: %s\n", relay)
-		return badge, errors.New("invalid or empty relay URL")
-	}
-
-	conn, _, err := websocket.DefaultDialer.Dial(relay, nil)
+// fetchBadgeDetails fetches the badge definition details from the relay.
+func fetchBadgeDetails(relayURL, eventID, badgeType string) (CollectedBadge, error) {
+	conn, _, err := websocket.DefaultDialer.Dial(relayURL, nil)
 	if err != nil {
-		log.Printf("Failed to connect to relay %s: %v\n", relay, err)
-		return badge, fmt.Errorf("failed to connect to relay %s: %v", relay, err)
+		log.Printf("Failed to connect to WebSocket for badge details: %v\n", err)
+		return CollectedBadge{}, err
 	}
 	defer conn.Close()
 
+	// Badge type sometimes has a format like `30009:xxx:badgeName`. Only extract the event ID (the middle part)
+	parts := strings.Split(badgeType, ":")
+	if len(parts) < 2 {
+		log.Printf("Invalid badgeType format: %s\n", badgeType)
+		return CollectedBadge{}, errors.New("invalid badge type format")
+	}
+	badgeEventID := parts[1]
+
+	// Subscription filter for badge definition (kind 30009)
 	filter := types.SubscriptionFilter{
-		IDs:   []string{eventID},
-		Kinds: []int{30009}, // Badge definition event
+		Kinds:   []int{30009},
+		Authors: []string{badgeEventID},
 	}
 
 	subRequest := []interface{}{
@@ -182,59 +182,77 @@ func fetchBadgeDetails(relay string, eventID string, badgeType string) (Collecte
 
 	requestJSON, err := json.Marshal(subRequest)
 	if err != nil {
-		return badge, fmt.Errorf("failed to marshal request: %v", err)
+		log.Printf("Failed to marshal subscription request: %v\n", err)
+		return CollectedBadge{}, err
 	}
 
 	if err := conn.WriteMessage(websocket.TextMessage, requestJSON); err != nil {
-		return badge, fmt.Errorf("failed to send subscription request: %v", err)
+		log.Printf("Failed to send subscription request for badge details: %v\n", err)
+		return CollectedBadge{}, err
 	}
 
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			return badge, fmt.Errorf("failed to read response: %v", err)
+			log.Printf("Error reading WebSocket message: %v\n", err)
+			return CollectedBadge{}, err
 		}
 
-		log.Printf("Received response: %s\n", string(message))
+		log.Printf("Received WebSocket message for badge details: %s\n", message)
 
 		var response []interface{}
 		if err := json.Unmarshal(message, &response); err != nil {
-			return badge, fmt.Errorf("failed to unmarshal response: %v", err)
+			log.Printf("Failed to unmarshal badge details response: %v\n", err)
+			continue
+		}
+
+		// Handle NOTICE messages indicating bad request
+		if response[0] == "NOTICE" {
+			log.Printf("NOTICE from WebSocket: %v\n", response)
+			return CollectedBadge{}, errors.New("error fetching badge details: " + response[1].(string))
 		}
 
 		if response[0] == "EVENT" {
 			eventData, err := json.Marshal(response[2])
 			if err != nil {
-				return badge, fmt.Errorf("failed to marshal event data: %v", err)
+				log.Printf("Failed to marshal badge details event data: %v\n", err)
+				continue
 			}
 
 			var event types.NostrEvent
 			if err := json.Unmarshal(eventData, &event); err != nil {
-				return badge, fmt.Errorf("failed to parse event data: %v", err)
+				log.Printf("Failed to parse badge details event data: %v\n", err)
+				continue
 			}
 
-			// Extract badge details from the event tags
+			// Parse badge details from the event
+			var badge CollectedBadge
+			badge.BadgeType = badgeType
+			badge.EventID = eventID
+			badge.CreatedAt = event.CreatedAt
+
 			for _, tag := range event.Tags {
-				log.Printf("Processing tag: %v\n", tag)
 				switch tag[0] {
 				case "name":
-					badge.BadgeType = tag[1]
+					badge.Name = tag[1]
 				case "description":
 					badge.Description = tag[1]
 				case "image":
+					badge.ImageURL = tag[1]
+				case "thumb":
 					badge.ThumbURL = tag[1]
 				}
 			}
-			return badge, nil // Return badge after successful parsing
+
+			return badge, nil
 		} else if response[0] == "EOSE" {
-			// End of Stored Events, no valid event found
-			log.Printf("End of subscription received while fetching badge details")
 			break
 		}
 	}
 
-	return badge, errors.New("no valid badge event found")
+	return CollectedBadge{}, errors.New("badge details not found")
 }
+
 
 // Helper function to check if a slice contains a specific string
 func contains(slice []string, item string) bool {
