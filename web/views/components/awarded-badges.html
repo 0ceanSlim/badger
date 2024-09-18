@@ -1,6 +1,7 @@
 {{define "awardedBadges"}}
 <div>
   <h3 class="mb-4 text-lg font-semibold">Awarded Badges</h3>
+  <div id="spinner-collected" class="spinner"></div>
   <ul>
     {{range .AwardedBadges}}
     <li>{{.Name}} - {{.Description}} ({{.DateAwarded}})</li>

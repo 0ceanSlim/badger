@@ -74,5 +74,24 @@
     <script src="/static/js/deleteBadge.js"></script>
   </body>
   <script src="https://unpkg.com/window.nostr.js/dist/window.nostr.js"></script>
+  <script>
+    // Function to show spinner when starting to load content
+    document.addEventListener("htmx:beforeRequest", function (event) {
+      const spinnerId = event.target.getAttribute("hx-target");
+      const spinner = document.querySelector(spinnerId + " .spinner");
+      if (spinner) {
+        spinner.style.display = "block"; // Show the spinner
+      }
+    });
+
+    // Function to hide spinner when the content is fully loaded
+    document.addEventListener("htmx:afterOnLoad", function (event) {
+      const spinnerId = event.target.getAttribute("hx-target");
+      const spinner = document.querySelector(spinnerId + " .spinner");
+      if (spinner) {
+        spinner.style.display = "none"; // Hide the spinner
+      }
+    });
+  </script>
 </html>
 {{end}}
