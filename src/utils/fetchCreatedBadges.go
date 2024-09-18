@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Badge struct {
+type CreatedBadge struct {
 	Name        string
 	Description string
 	ImageURL    string
@@ -19,8 +19,8 @@ type Badge struct {
 }
 
 // FetchCreatedBadges fetches all badges created by a user from their relays, filtering duplicates
-func FetchCreatedBadges(publicKey string, relays []string) ([]Badge, error) {
-	var badges []Badge
+func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, error) {
+	var badges []CreatedBadge
 	seenEventIDs := make(map[string]bool)
 
 	for _, url := range relays {
@@ -94,7 +94,7 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]Badge, error) {
 				seenEventIDs[event.ID] = true // Mark this event ID as seen
 
 				// Parse badge data from the event's tags
-				badge := Badge{EventID: event.ID} // Store the event ID
+				badge := CreatedBadge{EventID: event.ID} // Store the event ID
 				for _, tag := range event.Tags {
 					switch tag[0] {
 					case "name":

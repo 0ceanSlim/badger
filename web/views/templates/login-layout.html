@@ -46,6 +46,26 @@
         scrollbar-color: #00000000 #00000000;
       }
     </style>
+    <style>
+      .spinner {
+        display: none;
+        width: 32px;
+        height: 32px;
+        border: 5px solid purple;
+        border-top: 5px solid violet;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body
     class="max-w-screen-lg p-4 mx-auto font-mono text-center md:p-8 text-textPrimary bg-bgPrimary"

@@ -6,6 +6,13 @@ import (
 	"path/filepath"
 )
 
+// AwardedBadge defines the structure for a badge that has been awarded to a user
+type AwardedBadge struct {
+	Name         string
+	Description  string
+	DateAwarded  string // You can use time.Time if you prefer
+}
+
 type PageData struct {
 	Title           string
 	Theme           string
@@ -14,9 +21,9 @@ type PageData struct {
 	Picture         string
 	About           string
 	Relays          RelayList
-	AwardedBadges   []Badge
-	CollectedBadges []Badge
-	CreatedBadges   []Badge
+	AwardedBadges   []AwardedBadge
+	CollectedBadges []CollectedBadge
+	CreatedBadges   []CreatedBadge
 }
 
 // Define the base directories for views and templates

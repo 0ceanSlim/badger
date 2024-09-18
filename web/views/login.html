@@ -6,6 +6,7 @@
   >
     Sign In with Nostr
   </button>
+  <div id="spinner" class="spinner" style="display: none"></div>
 
   <!-- Hidden input to store the public key -->
   <input type="hidden" id="public-key" name="publicKey" />
@@ -36,6 +37,17 @@
         alert("Nostr extension not available.");
       }
     };
+  </script>
+  <script>
+    document;
+    document
+      .getElementById("login-button")
+      .addEventListener("click", async function () {
+        document.getElementById("login-button").style.display = "none";
+        document.getElementById("spinner").style.display = "block";
+
+        // Rest of the code for handling the login process
+      });
   </script>
 </main>
 {{end}}

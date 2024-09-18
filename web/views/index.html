@@ -1,5 +1,4 @@
 {{define "view"}}
-
 <main class="flex flex-col my-16 md:my-32">
   <div class="flex flex-col items-center mb-8 md:flex-row md:items-start">
     <img
@@ -15,38 +14,46 @@
 
   <!-- Tabbed Container -->
   <div
-    class="w-full max-w-4xl p-4 mx-auto bg-bgSecondary text-textPrimary rounded-lg shadow-md"
+    class="w-full max-w-4xl p-4 mx-auto rounded-lg shadow-md bg-bgSecondary text-textPrimary"
   >
     <div class="flex mb-4 border-b border-bgInverted">
       <button
         hx-get="/collected-badges"
         hx-target="#tab-content"
+        hx-trigger="load,click"
         hx-swap="innerHTML"
         class="px-4 py-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
+        onclick="showTab('collected')"
       >
         Collected Badges
       </button>
       <button
         hx-get="/awarded-badges"
         hx-target="#tab-content"
+        hx-trigger="load,click"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
+        onclick="showTab('awarded')"
       >
         Awarded Badges
       </button>
       <button
-        hx-trigger="click,load"
         hx-get="/created-badges"
         hx-target="#tab-content"
+        hx-trigger="load,click"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
+        onclick="showTab('created')"
       >
         Created Badges
       </button>
     </div>
 
-    <!-- Container for Tab Content -->
-    <div id="tab-content" class="p-4"></div>
+    <!-- Spinner shown during loading -->
+    <div id="tab-content" class="p-4">
+      <div id="spinner" class="spinner"></div>
+      <!-- Spinner is shown here while loading -->
+    </div>
   </div>
 
   <script>
@@ -62,6 +69,32 @@
         window.location.href = "/login";
       }
     };
+  </script>
+  <script>
+    // Function to show spinner before content is loaded
+    function showSpinner() {
+      document.getElementById("spinner").style.display = "block";
+    }
+
+    // Function to hide spinner after content is loaded
+    function hideSpinner() {
+      document.getElementById("spinner").style.display = "none";
+    }
+
+    // Function to handle tab switching
+    function showTab(tab) {
+      // Ensure spinner is shown while loading content
+      showSpinner();
+      setTimeout(function () {
+        // Hide spinner after a delay to simulate loading
+        hideSpinner();
+      }, 500); // Adjust this delay based on actual content loading time
+    }
+
+    // Hide spinner after page load is complete
+    document.addEventListener("htmx:afterOnLoad", function () {
+      hideSpinner();
+    });
   </script>
 </main>
 {{end}}

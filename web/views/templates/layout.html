@@ -46,6 +46,26 @@
         scrollbar-color: #00000000 #00000000;
       }
     </style>
+    <style>
+      .spinner {
+        display: none;
+        width: 32px;
+        height: 32px;
+        border: 5px solid purple;
+        border-top: 5px solid violet;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body
     class="max-w-screen-lg p-4 mx-auto font-mono text-center md:p-8 text-textPrimary bg-bgPrimary"
@@ -54,5 +74,24 @@
     <script src="/static/js/deleteBadge.js"></script>
   </body>
   <script src="https://unpkg.com/window.nostr.js/dist/window.nostr.js"></script>
+  <script>
+    // Function to show spinner when starting to load content
+    document.addEventListener("htmx:beforeRequest", function (event) {
+      const spinnerId = event.target.getAttribute("hx-target");
+      const spinner = document.querySelector(spinnerId + " .spinner");
+      if (spinner) {
+        spinner.style.display = "block"; // Show the spinner
+      }
+    });
+
+    // Function to hide spinner when the content is fully loaded
+    document.addEventListener("htmx:afterOnLoad", function (event) {
+      const spinnerId = event.target.getAttribute("hx-target");
+      const spinner = document.querySelector(spinnerId + " .spinner");
+      if (spinner) {
+        spinner.style.display = "none"; // Hide the spinner
+      }
+    });
+  </script>
 </html>
 {{end}}
