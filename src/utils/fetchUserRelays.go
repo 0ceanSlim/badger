@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"badger/src/types"
 
@@ -15,13 +16,14 @@ type RelayList struct {
 	Both  []string
 }
 
+
 func FetchUserRelays(publicKey string, relays []string) (*RelayList, error) {
 	for _, url := range relays {
 		log.Printf("Connecting to WebSocket: %s\n", url)
 		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 		if err != nil {
 			log.Printf("Failed to connect to WebSocket: %v\n", err)
-			continue // Try the next relay if this one fails
+			continue
 		}
 		defer conn.Close()
 
@@ -49,16 +51,22 @@ func FetchUserRelays(publicKey string, relays []string) (*RelayList, error) {
 			return nil, err
 		}
 
-		for {
-			log.Println("Waiting for WebSocket message...")
+		// WebSocket message or timeout handling
+		msgChan := make(chan []byte)
+		errChan := make(chan error)
+
+		go func() {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				log.Printf("Error reading WebSocket message: %v\n", err)
-				break // Try the next relay if there's an error
+				errChan <- err
+			} else {
+				msgChan <- message
 			}
+		}()
 
+		select {
+		case message := <-msgChan:
 			log.Printf("Received WebSocket message: %s\n", message)
-
 			var response []interface{}
 			if err := json.Unmarshal(message, &response); err != nil {
 				log.Printf("Failed to unmarshal response: %v\n", err)
@@ -66,7 +74,6 @@ func FetchUserRelays(publicKey string, relays []string) (*RelayList, error) {
 			}
 
 			if response[0] == "EVENT" {
-				// The third element in the array is the actual event data
 				eventData, err := json.Marshal(response[2])
 				if err != nil {
 					log.Printf("Failed to marshal event data: %v\n", err)
@@ -100,6 +107,12 @@ func FetchUserRelays(publicKey string, relays []string) (*RelayList, error) {
 				}
 				return relayList, nil
 			}
+		case err := <-errChan:
+			log.Printf("Error reading WebSocket message: %v\n", err)
+			continue
+		case <-time.After(WebSocketTimeout):
+			log.Printf("WebSocket response timeout from %s\n", url)
+			continue
 		}
 	}
 	return nil, nil
