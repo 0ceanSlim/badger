@@ -5,11 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"badger/src/utils" // Import the utils package to use RelayList
+	"badger/src/utils"
 
 	"github.com/nbd-wtf/go-nostr"
 )
 
+// UpdateBadgeHandler handles the event of updating a badge
 func UpdateBadgeHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := User.Get(r, "session-name")
 
@@ -25,11 +26,17 @@ func UpdateBadgeHandler(w http.ResponseWriter, r *http.Request) {
 	allRelays := append(relays.Read, relays.Write...)
 	allRelays = append(allRelays, relays.Both...)
 
+	// Decode the updated badge event from the request body
 	var updatedEvent nostr.Event
-	if err := json.NewDecoder(r.Body).Decode(&updatedEvent); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&updatedEvent)
+	if err != nil {
+		log.Printf("Failed to decode the request body: %v", err)
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
+
+	// Log the updated event for debugging
+	log.Printf("Received updated event: %+v", updatedEvent)
 
 	// Send the updated event to the user's relays
 	sendEventToRelays(updatedEvent, allRelays)

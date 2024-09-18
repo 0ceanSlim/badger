@@ -63,15 +63,27 @@
     </div>
   </form>
 </div>
-
 <script>
+  window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Set the form fields based on URL parameters
+    document.getElementById("badge-name").value = urlParams.get("name");
+    document.getElementById("badge-description").value =
+      urlParams.get("description");
+    document.getElementById("badge-image").value = urlParams.get("image");
+    document.getElementById("badge-thumb").value = urlParams.get("thumb");
+
+    // Store the badgeId and dtag values
+    window.badgeId = urlParams.get("badgeId");
+    window.dtag = urlParams.get("dtag");
+  };
+
   document.getElementById("update-badge-form").onsubmit = async function (
     event
   ) {
     event.preventDefault();
 
-    const badgeId = "REPLACE_WITH_ORIGINAL_EVENT_ID"; // Pass the original badge event ID
-    const uniqueName = "REPLACE_WITH_DTAG"; // Keep the original d tag
     const badgeName = document.getElementById("badge-name").value;
     const badgeDescription = document.getElementById("badge-description").value;
     const badgeImage = document.getElementById("badge-image").value;
@@ -80,8 +92,8 @@
     const updatedBadgeEvent = {
       kind: 30009, // Badge Definition kind
       tags: [
-        ["d", uniqueName], // same d tag
-        ["e", badgeId], // reference to original event id
+        ["d", window.dtag], // same d tag
+        ["e", window.badgeId], // reference to original event id
         ["name", badgeName],
         ["description", badgeDescription],
         ["image", badgeImage, "1024x1024"],
@@ -97,16 +109,15 @@
         console.log("Signed Updated Event:", signedEvent);
 
         // Send updated signed event to Go backend
-        fetch("/update-badge", {
+        const response = await fetch("/update-badge", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(signedEvent),
-        })
-          .then((response) => response.json())
-          .then((data) => console.log("Badge updated:", data))
-          .catch((error) => console.error("Error:", error));
+        });
+        const data = await response.json();
+        console.log("Badge updated:", data);
       } catch (err) {
         console.error("Failed to sign updated event:", err);
       }
@@ -115,4 +126,5 @@
     }
   };
 </script>
+
 {{end}}

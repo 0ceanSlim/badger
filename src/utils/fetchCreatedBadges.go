@@ -1,4 +1,3 @@
-// src/utils/badges.go
 package utils
 
 import (
@@ -15,7 +14,8 @@ type CreatedBadge struct {
 	Description string
 	ImageURL    string
 	ThumbURL    string
-	EventID     string // Add EventID to track duplicates
+	EventID     string // Track event ID to avoid duplicates
+	DTag        string // Add DTag field for the unique identifier
 }
 
 // FetchCreatedBadges fetches all badges created by a user from their relays, filtering duplicates
@@ -34,7 +34,7 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 
 		filter := types.SubscriptionFilter{
 			Authors: []string{publicKey},
-			Kinds:   []int{30009}, // Badge creation event
+			Kinds:   []int{30009}, // Badge creation event kind
 		}
 
 		subRequest := []interface{}{
@@ -94,9 +94,14 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 				seenEventIDs[event.ID] = true // Mark this event ID as seen
 
 				// Parse badge data from the event's tags
-				badge := CreatedBadge{EventID: event.ID} // Store the event ID
+				badge := CreatedBadge{
+					EventID: event.ID, // Store the event ID
+				}
+
 				for _, tag := range event.Tags {
 					switch tag[0] {
+					case "d":
+						badge.DTag = tag[1] // Store the d tag (unique identifier)
 					case "name":
 						badge.Name = tag[1]
 					case "description":
@@ -107,6 +112,7 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 						badge.ThumbURL = tag[1]
 					}
 				}
+
 				badges = append(badges, badge)
 			} else if response[0] == "EOSE" {
 				log.Println("End of subscription signal received")
