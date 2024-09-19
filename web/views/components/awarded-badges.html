@@ -1,13 +1,41 @@
 {{define "awardedBadges"}}
-<div>
+<div id="awarded-badges">
   <h3 class="mb-4 text-lg font-semibold">Awarded Badges</h3>
-  <div id="spinner-collected" class="spinner"></div>
-  <ul>
-    {{range .AwardedBadges}}
-    <li>{{.Name}} - {{.Description}} ({{.DateAwarded}})</li>
+  <div id="spinner-awarded" class="spinner"></div>
+  <div class="container px-4 py-8 mx-auto">
+    {{if .AwardedBadges}}
+    <div
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
+    >
+      {{range .AwardedBadges}}
+      <div
+        class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary"
+      >
+        <div class="relative group">
+          <img
+            src="{{.ImageURL}}"
+            alt="{{.Name}}"
+            class="object-cover w-48 h-48 mb-3 border-4 rounded-md border-bgInverted"
+          />
+          <div
+            class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-75 rounded-md opacity-0 group-hover:opacity-100"
+          >
+            <p class="p-2 text-xs text-center text-white">{{.Description}}</p>
+          </div>
+        </div>
+        <h4 class="mb-2 text-lg font-semibold">{{.Name}}</h4>
+        <p class="text-sm text-center">Awarded by: {{.AwardedBy}}</p>
+        <button
+          class="px-4 py-2 mt-4 text-sm font-semibold text-white bg-purple-500 rounded-md hover:bg-purple-700"
+        >
+          Collect
+        </button>
+      </div>
+      {{end}}
+    </div>
     {{else}}
-    <li>No badges awarded.</li>
+    <p class="italic text-red">No badges awarded.</p>
     {{end}}
-  </ul>
+  </div>
 </div>
 {{end}}

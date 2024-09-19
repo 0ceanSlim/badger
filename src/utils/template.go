@@ -6,13 +6,6 @@ import (
 	"path/filepath"
 )
 
-// AwardedBadge defines the structure for a badge that has been awarded to a user
-type AwardedBadge struct {
-	Name         string
-	Description  string
-	DateAwarded  string // You can use time.Time if you prefer
-}
-
 type PageData struct {
 	Title           string
 	Theme           string
