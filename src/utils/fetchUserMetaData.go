@@ -10,15 +10,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type NostrContent struct {
-	DisplayName string `json:"display_name"`
-	Picture     string `json:"picture"`
-	About       string `json:"about"`
-}
-
 const WebSocketTimeout = 2 * time.Second // Set timeout duration
 
-func FetchUserMetadata(publicKey string, relays []string) (*NostrContent, error) {
+func FetchUserMetadata(publicKey string, relays []string) (*types.UserMetadata, error) {
 	for _, url := range relays {
 		log.Printf("Connecting to WebSocket: %s\n", url)
 		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -89,7 +83,7 @@ func FetchUserMetadata(publicKey string, relays []string) (*NostrContent, error)
 
 				log.Printf("Received Nostr event: %+v\n", event)
 
-				var content NostrContent
+				var content types.UserMetadata
 				if err := json.Unmarshal([]byte(event.Content), &content); err != nil {
 					log.Printf("Failed to parse content JSON: %v\n", err)
 					continue

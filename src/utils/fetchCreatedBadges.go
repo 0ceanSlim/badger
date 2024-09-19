@@ -11,22 +11,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type CreatedBadge struct {
-	Name        string
-	Description string
-	ImageURL    string
-	ThumbURL    string
-	EventID     string // Track event ID to avoid duplicates
-	DTag        string // Add DTag field for the unique identifier
-}
-
 // FetchCreatedBadges fetches all badges created by a user from their relays concurrently, with timeout
-func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, error) {
-	var badges []CreatedBadge
+func FetchCreatedBadges(publicKey string, relays []string) ([]types.BadgeDefinition, error) {
+	var badges []types.BadgeDefinition
 	seenEventIDs := make(map[string]bool)
 	var mu sync.Mutex
 
-	badgeChan := make(chan CreatedBadge)
+	badgeChan := make(chan types.BadgeDefinition)
 	errChan := make(chan error)
 	done := make(chan struct{})
 
@@ -120,7 +111,7 @@ func FetchCreatedBadges(publicKey string, relays []string) ([]CreatedBadge, erro
 						mu.Unlock()
 
 						// Parse badge data from the event
-						badge := CreatedBadge{EventID: event.ID}
+						badge := types.BadgeDefinition{EventID: event.ID}
 						for _, tag := range event.Tags {
 							switch tag[0] {
 							case "name":

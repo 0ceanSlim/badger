@@ -22,7 +22,6 @@ type CollectedBadge struct {
 	CreatedAt   int64  // Event creation time
 }
 
-
 // FetchCollectedBadges fetches badges from multiple relays.
 func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, error) {
 	var collectedBadges []CollectedBadge
@@ -253,7 +252,6 @@ func fetchBadgeDetails(relayURL, eventID, badgeType string) (CollectedBadge, err
 	return CollectedBadge{}, errors.New("badge details not found")
 }
 
-
 // Helper function to check if a slice contains a specific string
 func contains(slice []string, item string) bool {
 	for _, str := range slice {
@@ -273,4 +271,3 @@ func containsTag(tags [][]string, key, value string) bool {
 	}
 	return false
 }
-

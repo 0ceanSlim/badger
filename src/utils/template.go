@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"badger/src/types"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -16,7 +17,7 @@ type PageData struct {
 	Relays          RelayList
 	AwardedBadges   []AwardedBadge
 	CollectedBadges []CollectedBadge
-	CreatedBadges   []CreatedBadge
+	CreatedBadges   []types.BadgeDefinition
 }
 
 // Define the base directories for views and templates
