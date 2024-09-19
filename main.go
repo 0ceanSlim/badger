@@ -27,10 +27,12 @@ func main() {
 	mux.HandleFunc("/login", routes.Login) // Login route
 	mux.HandleFunc("/do-login", handlers.LoginHandler)
 	mux.HandleFunc("/logout", handlers.LogoutHandler) // Logout process
+	mux.HandleFunc("/update-badge", handlers.UpdateBadgeHandler)
 
 	// Initialize Routes
 	mux.HandleFunc("/", routes.Index)
 	mux.HandleFunc("/badgeform", routes.BadgeForm)
+	mux.HandleFunc("/update", routes.UpdateBadgeForm)
 	mux.HandleFunc("/relay-list", routes.RelayList)
 
 	// Render component htmls

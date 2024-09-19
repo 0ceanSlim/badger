@@ -1,4 +1,3 @@
-// src/utils/badges.go
 package utils
 
 import (
@@ -17,7 +16,8 @@ type CreatedBadge struct {
 	Description string
 	ImageURL    string
 	ThumbURL    string
-	EventID     string // Add EventID to track duplicates
+	EventID     string // Track event ID to avoid duplicates
+	DTag        string // Add DTag field for the unique identifier
 }
 
 // FetchCreatedBadges fetches all badges created by a user from their relays concurrently, with timeout

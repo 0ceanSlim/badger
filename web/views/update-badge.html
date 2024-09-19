@@ -1,0 +1,130 @@
+{{define "view"}}
+<div class="container w-full px-4 mx-auto my-8 md:w-1/2">
+  <h1 class="mb-2 text-2xl font-bold md:text-3xl">Update Badge</h1>
+  <form
+    id="update-badge-form"
+    class="px-8 pt-6 pb-8 mb-4 rounded shadow-md bg-bgSecondary text-textPrimary"
+  >
+    <div class="mb-4">
+      <label class="block mb-2 font-bold" for="badge-name"> Badge Name: </label>
+      <input
+        class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-name"
+        name="badge-name"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block mb-2 font-bold" for="badge-description">
+        Description:
+      </label>
+      <textarea
+        class="w-full px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        id="badge-description"
+        name="badge-description"
+        required
+      ></textarea>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-2 font-bold" for="badge-image"> Image URL: </label>
+      <input
+        class="w-full placeholder:text-xs px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-image"
+        name="badge-image"
+        required
+      />
+    </div>
+    <div class="mb-4">
+      <label class="block mb-2 font-bold" for="badge-thumb">
+        Thumbnail URL:
+      </label>
+      <input
+        class="w-full placeholder:text-xs px-3 py-2 leading-tight border rounded shadow appearance-none text-textInverted focus:outline-none focus:shadow-outline"
+        type="text"
+        id="badge-thumb"
+        name="badge-thumb"
+        required
+      />
+    </div>
+    <div class="flex items-center justify-between">
+      <button
+        type="submit"
+        class="px-4 py-2 font-bold text-white bg-purple-500 rounded hover:bg-purple-700 focus:outline-none focus:shadow-outline"
+      >
+        Update Badge
+      </button>
+      <a
+        href="/"
+        class="inline-block text-sm font-bold text-purple-500 align-baseline hover:text-purple-800"
+        >Return to Dashboard</a
+      >
+    </div>
+  </form>
+</div>
+<script>
+  window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Set the form fields based on URL parameters
+    document.getElementById("badge-name").value = urlParams.get("name");
+    document.getElementById("badge-description").value =
+      urlParams.get("description");
+    document.getElementById("badge-image").value = urlParams.get("image");
+    document.getElementById("badge-thumb").value = urlParams.get("thumb");
+
+    // Store the badgeId and dtag values
+    window.badgeId = urlParams.get("badgeId");
+    window.dtag = urlParams.get("dtag");
+  };
+
+  document.getElementById("update-badge-form").onsubmit = async function (
+    event
+  ) {
+    event.preventDefault();
+
+    const badgeName = document.getElementById("badge-name").value;
+    const badgeDescription = document.getElementById("badge-description").value;
+    const badgeImage = document.getElementById("badge-image").value;
+    const badgeThumb = document.getElementById("badge-thumb").value;
+
+    const updatedBadgeEvent = {
+      kind: 30009, // Badge Definition kind
+      tags: [
+        ["d", window.dtag], // same d tag
+        ["e", window.badgeId], // reference to original event id
+        ["name", badgeName],
+        ["description", badgeDescription],
+        ["image", badgeImage, "1024x1024"],
+        ["thumb", badgeThumb, "256x256"],
+      ],
+      created_at: Math.floor(Date.now() / 1000),
+      content: "",
+    };
+
+    if (window.nostr) {
+      try {
+        const signedEvent = await window.nostr.signEvent(updatedBadgeEvent);
+        console.log("Signed Updated Event:", signedEvent);
+
+        // Send updated signed event to Go backend
+        const response = await fetch("/update-badge", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(signedEvent),
+        });
+        const data = await response.json();
+        console.log("Badge updated:", data);
+      } catch (err) {
+        console.error("Failed to sign updated event:", err);
+      }
+    } else {
+      alert("Nostr extension not available.");
+    }
+  };
+</script>
+
+{{end}}
