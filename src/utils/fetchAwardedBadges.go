@@ -21,7 +21,7 @@ type AwardedBadge struct {
 	AwardedBy   string // Public key of the person who awarded the badge
 	EventID     string
 	CreatedAt   int64
-	Dtag 		string
+	Dtag        string
 }
 
 // FetchAwardedBadges fetches badges awarded to the user by searching public relays for kind 8 events.
@@ -52,9 +52,10 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 
 			// Create the subscription filter to search for kind 8 events
 			filter := types.SubscriptionFilter{
-				Kinds:   []int{8}, // Badge award events (kind 8)
-				Authors: []string{}, // All authors
-				P: []string{publicKey},
+				Kinds: []int{8}, // Badge award events (kind 8)
+				Tags: map[string][]string{
+					"p": {publicKey},
+				},
 			}
 
 			subRequest := []interface{}{
@@ -129,7 +130,7 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 								for _, tag := range event.Tags {
 									if tag[0] == "a" {
 										badgeType := tag[1]
-								
+
 										// Extract the dtag from the badgeType string
 										parts := strings.Split(badgeType, ":")
 										if len(parts) < 3 {
@@ -137,19 +138,19 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 											continue
 										}
 										dtag := parts[len(parts)-1]
-								
+
 										// Make sure there's a valid third element in the "p" tag for the relay URL
 										for _, ptag := range event.Tags {
 											if ptag[0] == "p" && len(ptag) > 2 && ptag[1] == publicKey {
 												badgeDefinitionRelay := ptag[2] // The relay to fetch the badge definition
-								
+
 												// Fetch the badge details using the relay URL and dtag
 												badgeDetails, err := fetchAwardedBadgeDetails(badgeDefinitionRelay, dtag)
 												if err != nil {
 													log.Printf("Failed to fetch badge definition from relay %s: %v\n", badgeDefinitionRelay, err)
 													continue
 												}
-								
+
 												// Create the awarded badge object with the dtag
 												badge := AwardedBadge{
 													Name:        badgeDetails.Name,
@@ -161,7 +162,7 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 													CreatedAt:   event.CreatedAt,
 													Dtag:        dtag, // Add the dtag to the object
 												}
-								
+
 												// Send the awarded badge to the channel
 												badgeChan <- badge
 											}
@@ -204,17 +205,19 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 
 // fetchAwardedBadgeDetails fetches the badge definition details from the relay.
 func fetchAwardedBadgeDetails(relayURL, dtag string) (AwardedBadge, error) {
-    conn, _, err := websocket.DefaultDialer.Dial(relayURL, nil)
-    if err != nil {
-        log.Printf("Failed to connect to WebSocket for badge details: %v\n", err)
-        return AwardedBadge{}, err
-    }
-    defer conn.Close()
+	conn, _, err := websocket.DefaultDialer.Dial(relayURL, nil)
+	if err != nil {
+		log.Printf("Failed to connect to WebSocket for badge details: %v\n", err)
+		return AwardedBadge{}, err
+	}
+	defer conn.Close()
 
-    filter := types.SubscriptionFilter{
-        Kinds:   []int{30009}, // Badge definition event (kind 30009)
-        D: []string{dtag}, // Add the dtag to the filter
-    }
+	filter := types.SubscriptionFilter{
+		Kinds: []int{30009}, // Badge definition event (kind 30009)
+		Tags: map[string][]string{
+			"d": {dtag},
+		},
+	}
 
 	subRequest := []interface{}{
 		"REQ",
@@ -268,11 +271,10 @@ func fetchAwardedBadgeDetails(relayURL, dtag string) (AwardedBadge, error) {
 			}
 
 			return badge, nil
-			} else if response[0] == "EOSE" {
-				break
-			}
+		} else if response[0] == "EOSE" {
+			break
 		}
-	
-		return AwardedBadge{}, errors.New("badge details not found")
 	}
-	
+
+	return AwardedBadge{}, errors.New("badge details not found")
+}
