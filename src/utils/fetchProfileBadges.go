@@ -18,18 +18,13 @@ type ProfileBadgesEvent struct {
 	Badges []ProfileBadge
 }
 
-// This struct doesn't make sense it needs to be refactored
 // ProfileBadge represents a single badge in a ProfileBadgesEvent
 type ProfileBadge struct {
-	//this is the a tag of a profile badge full string, it should be the pubkey of the person that awarded the badge as the struct
-	BadgeDefinitionID string // From "a" tag: "kind:pubkey:dtag"
-	AwardEventID      string // From "e" tag
-	AwardRelayURL     string // From "e" tag
-
-	//BadgeAwardDTag string // From dtag of "a" tag: "kind:pubkey:dtag"
-	//AwardedBy		string // From the pubkey of "a" tag: "kind:pubkey:dtag"
-	//BadgeAwardID string // From first part of "e" tag: "<honor badge award event id>", "wss://nostr.academy"
-	//BadgeAwardRelay string // From second part of "e" tag: "<honor badge award event id>", "wss://nostr.academy"
+	BadgeAwardATag string // From "a" tag: "kind:pubkey:dtag"  //BadgeAwardATag
+	AwardEventID      string // From "e" tag: Award event ID
+	AwardRelayURL     string // From "e" tag: Relay URL for the award event
+	BadgeAwardedBy    string // From the pubkey of "a" tag: The person who awarded the badge
+	BadgeAwardDTag    string // From dtag of "a" tag: The dtag associated with the badge
 }
 
 // FetchProfileBadges fetches badges from multiple relays.
@@ -103,12 +98,12 @@ func FetchProfileBadges(publicKey string, relays []string) ([]ProfileBadgesEvent
 				for i := 0; i < len(profileBadgesEvent.Tags); i++ {
 					tag := profileBadgesEvent.Tags[i]
 					if tag[0] == "a" && i+1 < len(profileBadgesEvent.Tags) && profileBadgesEvent.Tags[i+1][0] == "e" {
-						badgeDefinitionID := tag[1]
-						if _, exists := uniqueBadgeIDs[badgeDefinitionID]; exists {
+						badgeAwardATag := tag[1]
+						if _, exists := uniqueBadgeIDs[badgeAwardATag]; exists {
 							i++ // Skip the next tag as we've already processed this badge
 							continue
 						}
-						uniqueBadgeIDs[badgeDefinitionID] = struct{}{} // Mark this badge as seen
+						uniqueBadgeIDs[badgeAwardATag] = struct{}{} // Mark this badge as seen
 
 						awardEventID := profileBadgesEvent.Tags[i+1][1]
 						awardRelayURL := ""
@@ -116,11 +111,20 @@ func FetchProfileBadges(publicKey string, relays []string) ([]ProfileBadgesEvent
 							awardRelayURL = profileBadgesEvent.Tags[i+1][2]
 						}
 
-						profileBadgesEvent.Badges = append(profileBadgesEvent.Badges, ProfileBadge{
-							BadgeDefinitionID: badgeDefinitionID,
-							AwardEventID:      awardEventID,
-							AwardRelayURL:     awardRelayURL,
-						})
+						// Extract the dtag and awarded by information from the "a" tag
+						parts := strings.Split(badgeAwardATag, ":")
+						if len(parts) == 3 {
+							badgeAwardedBy := parts[1] // The pubkey of the person who awarded the badge
+							badgeAwardDTag := parts[2]  // The dtag associated with the badge
+
+							profileBadgesEvent.Badges = append(profileBadgesEvent.Badges, ProfileBadge{
+								BadgeAwardATag: badgeAwardATag,
+								AwardEventID:      awardEventID,
+								AwardRelayURL:     awardRelayURL,
+								BadgeAwardedBy:    badgeAwardedBy,
+								BadgeAwardDTag:    badgeAwardDTag,
+							})
+						}
 						i++ // Skip the next tag as we've processed it
 					}
 				}
@@ -143,9 +147,9 @@ func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []st
 
 	for _, event := range profileBadgesEvents {
 		for _, badge := range event.Badges {
-			parts := strings.Split(badge.BadgeDefinitionID, ":")
+			parts := strings.Split(badge.BadgeAwardATag, ":")
 			if len(parts) != 3 {
-				log.Printf("Invalid badge definition ID format: %s\n", badge.BadgeDefinitionID)
+				log.Printf("Invalid badge definition ID format: %s\n", badge.BadgeAwardATag)
 				continue
 			}
 			authorPubKey := parts[1]
@@ -161,7 +165,7 @@ func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []st
 						continue
 					}
 					mu.Lock()
-					badgeDefinitions[badge.BadgeDefinitionID] = badgeDef
+					badgeDefinitions[badge.BadgeAwardATag] = badgeDef
 					mu.Unlock()
 					break // Successfully fetched the badge definition, no need to try other relays
 				}

@@ -8,7 +8,7 @@
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
     >
       {{range .ProfileBadgesEvents}} {{range .Badges}} {{$badgeDef := index
-      $.BadgeDefinitions .BadgeDefinitionID}} {{if $badgeDef}}
+      $.BadgeDefinitions .BadgeAwardATag}} {{if $badgeDef}}
       <div
         class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary"
       >
@@ -27,9 +27,9 @@
           </div>
         </div>
         <h4 class="mb-2 text-lg font-semibold">{{$badgeDef.Name}}</h4>
-        <!--<p class="text-sm text-center">Debug: {{.AwardEventID}}</p>
-        <p class="text-sm text-center">Awarded by: {{.AwardEventID}}</p>
-        <p class="text-sm text-center">Awarded by: {{.BadgeDefinitionID}}</p>
+        <p class="text-sm text-center">Awarded By: {{.BadgeAwardedBy}}</p>
+        <p class="text-sm text-center">Badge Event ID: {{.AwardEventID}}</p>
+        <!--<p class="text-sm text-center">Awarded by: {{.BadgeAwardATag}}</p>
         <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>-->
         <button
           class="px-4 py-2 mt-4 text-xs font-semibold text-white bg-red-500 rounded-md hover:bg-red-700"
@@ -41,7 +41,7 @@
       </div>
 
       {{else}}
-      <p>Badge definition not found for ID: {{.BadgeDefinitionID}}</p>
+      <p>Badge definition not found for ID: {{.BadgeAwardATag}}</p>
       {{end}} {{end}} {{end}}
     </div>
     {{else}}
