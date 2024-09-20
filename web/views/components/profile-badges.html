@@ -1,8 +1,8 @@
 {{define "profileBadges"}}
 <div id="profile-badges">
   <h3 class="mb-4 text-lg font-semibold">Profile Badges</h3>
-  <div id="spinner-profile" class="spinner"></div>
   <div class="container px-4 py-8 mx-auto">
+    <div id="spinner-profile" class="spinner"></div>
     {{if .ProfileBadgesEvents}}
     <div
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
@@ -32,7 +32,9 @@
         <p class="text-sm text-center">Awarded by: {{.BadgeDefinitionID}}</p>
         <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>-->
         <button
-          class="px-4 py-2 mt-4 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-700"
+          class="px-4 py-2 mt-4 text-xs font-semibold text-white bg-red-500 rounded-md hover:bg-red-700"
+          hx-swap="outerHTML"
+          hx-get="/wip-message"
         >
           Remove this Badge!
         </button>

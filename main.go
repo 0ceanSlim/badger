@@ -52,6 +52,10 @@ func main() {
 	})
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.FS(staticFiles))))
 
+	mux.HandleFunc("/wip-message", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `<button class="px-4 py-2 mt-4 text-xs font-semibold text-white bg-red-500 rounded-md hover:bg-red-700">I'm Working on it ⚠️</button>`)
+	})
+
 	fmt.Printf("Server is running on http://localhost:%d\n", cfg.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), mux)
 }
