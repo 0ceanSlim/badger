@@ -7,8 +7,9 @@
     <div
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
     >
-      {{range .ProfileBadgesEvents}} {{range .Badges}} {{$badgeDef := index
-      $.BadgeDefinitions .BadgeAwardATag}} {{if $badgeDef}}
+      {{range .ProfileBadgesEvents}} {{range .Badges}} {{ $combinedKey := printf
+      "%s:%s" .BadgeAwardedBy .BadgeAwardDTag }} {{ $badgeDef := index
+      $.BadgeDefinitions $combinedKey }} {{if $badgeDef}}
       <div
         class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary"
       >
@@ -27,13 +28,14 @@
           </div>
         </div>
         <h4 class="mb-2 text-lg font-semibold">{{$badgeDef.Name}}</h4>
-        <p class="text-sm text-center">Award a Tag: {{.BadgeAwardATag}}</p>
+
         <p class="text-sm text-center">Awarded By: {{.BadgeAwardedBy}}</p>
+        <!--<p class="text-sm text-center">Award a Tag: {{.BadgeAwardATag}}</p>
         <p class="text-sm text-center">Award Event ID: {{.AwardEventID}}</p>
         <p class="text-sm text-center">Award Relay Url: {{.AwardRelayURL}}</p>
         <p class="text-sm text-center">Badge d Tag: {{.BadgeAwardDTag}}</p>
         <p class="text-sm text-center">Badge Event ID: {{$badgeDef.ID}}</p>
-        <!--<p class="text-sm text-center">Awarded by: {{.BadgeAwardATag}}</p>
+        <p class="text-sm text-center">Awarded by: {{.BadgeAwardATag}}</p>
         <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>-->
         <button
           class="px-4 py-2 mt-4 text-xs font-semibold text-white bg-red-500 rounded-md hover:bg-red-700"
