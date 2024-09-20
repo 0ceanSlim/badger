@@ -27,7 +27,8 @@ type ProfileBadge struct {
 	BadgeAwardDTag    string // From dtag of "a" tag: The dtag associated with the badge
 }
 
-// FetchProfileBadges fetches badges from multiple relays.
+// FetchProfileBadges fetches badges from multiple relays.air
+
 func FetchProfileBadges(publicKey string, relays []string) ([]ProfileBadgesEvent, error) {
 	var profileBadges []ProfileBadgesEvent
 	uniqueBadgeIDs := make(map[string]struct{}) // Set to track unique badge IDs
