@@ -23,17 +23,19 @@
         hx-trigger="load,click"
         hx-swap="innerHTML"
         class="px-4 py-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
-        onclick="showTab('collected')"
+        onclick="showTab('collected', 'spinner-collected')"
+        data-spinner-id="spinner-collected"
       >
         Profile Badges
       </button>
       <button
         hx-get="/awarded-badges"
         hx-target="#tab-content"
-        hx-trigger=",click"
+        hx-trigger="click"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
-        onclick="showTab('awarded')"
+        onclick="showTab('awarded', 'spinner-awarded')"
+        data-spinner-id="spinner-awarded"
       >
         Awarded Badges
       </button>
@@ -43,7 +45,8 @@
         hx-trigger="click"
         hx-swap="innerHTML"
         class="px-4 py-2 ml-2 text-sm font-semibold text-white bg-purple-500 rounded-t-md hover:bg-purple-700"
-        onclick="showTab('created')"
+        onclick="showTab('created', 'spinner-created')"
+        data-spinner-id="spinner-created"
       >
         Created Badges
       </button>
@@ -71,29 +74,33 @@
     };
   </script>
   <script>
-    // Function to show spinner before content is loaded
-    function showSpinner() {
-      document.getElementById("spinner").style.display = "block";
+    function showSpinner(spinnerId) {
+      const spinner = document.getElementById(spinnerId);
+      if (spinner) {
+        spinner.style.display = "block";
+      }
     }
 
-    // Function to hide spinner after content is loaded
-    function hideSpinner() {
-      document.getElementById("spinner").style.display = "none";
+    function hideSpinner(spinnerId) {
+      const spinner = document.getElementById(spinnerId);
+      if (spinner) {
+        spinner.style.display = "none";
+      }
     }
 
-    // Function to handle tab switching
-    function showTab(tab) {
-      // Ensure spinner is shown while loading content
-      showSpinner();
+    function showTab(tab, spinnerId) {
+      showSpinner(spinnerId);
       setTimeout(function () {
-        // Hide spinner after a delay to simulate loading
-        hideSpinner();
-      }, 500); // Adjust this delay based on actual content loading time
+        hideSpinner(spinnerId);
+      }, 500);
     }
 
-    // Hide spinner after page load is complete
-    document.addEventListener("htmx:afterOnLoad", function () {
-      hideSpinner();
+    document.body.addEventListener("htmx:afterOnLoad", function (event) {
+      const button = event.detail.elt;
+      const spinnerId = button.getAttribute("data-spinner-id");
+      if (spinnerId) {
+        hideSpinner(spinnerId);
+      }
     });
   </script>
 </main>
