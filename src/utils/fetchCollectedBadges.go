@@ -15,7 +15,7 @@ import (
 type CollectedBadge struct {
 	BadgeType   string // Badge type from the "a" tag
 	AwardedBy   string // Awarding pubkey from the "a" tag
-	EventID     string // Event ID from the "e" tag (badge award event)
+	EventID     string // Event ID from the "e" tag (badge award event) //not sure this is right?
 	Name        string // Badge name from the 30009 event
 	Description string // Badge description from the 30009 event
 	ImageURL    string // Full-size badge image URL fetched from the 30009 event
