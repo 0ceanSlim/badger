@@ -180,7 +180,7 @@ func FetchAwardedBadges(publicKey string, publicRelays []string) ([]AwardedBadge
 		}(relayURL)
 	}
 
-	// Goroutine to collect awarded badges from the badgeChan
+	// Goroutine to gather awarded badges from the badgeChan
 	go func() {
 		for badge := range badgeChan {
 			awardedBadges = append(awardedBadges, badge)

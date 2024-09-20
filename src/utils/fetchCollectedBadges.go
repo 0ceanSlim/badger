@@ -12,33 +12,29 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type CollectedBadge struct {
-	BadgeType   string // Badge type from the "a" tag
-	AwardedBy   string // Awarding pubkey from the "a" tag
-	EventID     string // Event ID from the "e" tag (badge award event) //not sure this is right?
-	Name        string // Badge name from the 30009 event
-	Description string // Badge description from the 30009 event
-	ImageURL    string // Full-size badge image URL fetched from the 30009 event
-	ThumbURL    string // Badge thumbnail URL fetched from the 30009 event
-	CreatedAt   int64  // Event creation time
-}
-
 // ProfileBadgesEvent represents a kind 30008 event
 type ProfileBadgesEvent struct {
 	types.NostrEvent
 	Badges []ProfileBadge
 }
 
+// This struct doesn't make sense it needs to be refactored
 // ProfileBadge represents a single badge in a ProfileBadgesEvent
 type ProfileBadge struct {
+	//this is the a tag of a profile badge full string, it should be the pubkey of the person that awarded the badge as the struct
 	BadgeDefinitionID string // From "a" tag: "kind:pubkey:dtag"
 	AwardEventID      string // From "e" tag
 	AwardRelayURL     string // From "e" tag
+
+	//BadgeAwardDTag string // From dtag of "a" tag: "kind:pubkey:dtag"
+	//AwardedBy		string // From the pubkey of "a" tag: "kind:pubkey:dtag"
+	//BadgeAwardID string // From first part of "e" tag: "<honor badge award event id>", "wss://nostr.academy"
+	//BadgeAwardRelay string // From second part of "e" tag: "<honor badge award event id>", "wss://nostr.academy"
 }
 
-// FetchCollectedBadges fetches badges from multiple relays.
-func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEvent, error) {
-	var collectedBadges []ProfileBadgesEvent
+// FetchProfileBadges fetches badges from multiple relays.
+func FetchProfileBadges(publicKey string, relays []string) ([]ProfileBadgesEvent, error) {
+	var profileBadges []ProfileBadgesEvent
 	uniqueBadgeIDs := make(map[string]struct{}) // Set to track unique badge IDs
 
 	for _, relayURL := range relays {
@@ -129,7 +125,7 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEve
 					}
 				}
 
-				collectedBadges = append(collectedBadges, profileBadgesEvent)
+				profileBadges = append(profileBadges, profileBadgesEvent)
 			} else if response[0] == "EOSE" {
 				log.Println("End of subscription signal received")
 				break
@@ -137,7 +133,7 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEve
 		}
 	}
 
-	return collectedBadges, nil
+	return profileBadges, nil
 }
 
 func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []string) (map[string]types.BadgeDefinition, error) {

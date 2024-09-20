@@ -1,7 +1,7 @@
-{{define "collectedBadges"}}
-<div id="collected-badges">
-  <h3 class="mb-4 text-lg font-semibold">Collected Badges</h3>
-  <div id="spinner-collected" class="spinner"></div>
+{{define "profileBadges"}}
+<div id="profile-badges">
+  <h3 class="mb-4 text-lg font-semibold">Profile Badges</h3>
+  <div id="spinner-profile" class="spinner"></div>
   <div class="container px-4 py-8 mx-auto">
     {{if .ProfileBadgesEvents}}
     <div
@@ -27,20 +27,28 @@
           </div>
         </div>
         <h4 class="mb-2 text-lg font-semibold">{{$badgeDef.Name}}</h4>
+        <!--<p class="text-sm text-center">Debug: {{.AwardEventID}}</p>
         <p class="text-sm text-center">Awarded by: {{.AwardEventID}}</p>
-        <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>
+        <p class="text-sm text-center">Awarded by: {{.BadgeDefinitionID}}</p>
+        <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>-->
+        <button
+          class="px-4 py-2 mt-4 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-700"
+        >
+          Remove this Badge!
+        </button>
       </div>
+
       {{else}}
       <p>Badge definition not found for ID: {{.BadgeDefinitionID}}</p>
       {{end}} {{end}} {{end}}
     </div>
     {{else}}
-    <p class="italic text-red">No badges collected.</p>
+    <p class="italic text-red">Your Profile doesn't have any Badges.</p>
     {{end}}
   </div>
   <button
-    hx-get="/collected-badges?clear_cache=true"
-    hx-target="#collected-badges"
+    hx-get="/profile-badges?clear_cache=true"
+    hx-target="#profile-badges"
     hx-swap="outerHTML"
     class="px-4 py-2 mt-4 text-sm font-semibold text-white bg-purple-500 rounded-md hover:bg-purple-700"
   >

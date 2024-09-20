@@ -9,15 +9,15 @@ import (
 	"sync"
 )
 
-// Cache for storing collected badges
-var collectedBadgesCache = struct {
+// Cache for storing profile badges
+var profileBadgesCache = struct {
 	sync.RWMutex
 	data map[string]utils.PageData
 }{
 	data: make(map[string]utils.PageData),
 }
 
-func RenderCollectedBadges(w http.ResponseWriter, r *http.Request) {
+func RenderProfileBadgeEvent(w http.ResponseWriter, r *http.Request) {
 	// Retrieve session
 	session, _ := handlers.User.Get(r, "session-name")
 
@@ -33,19 +33,19 @@ func RenderCollectedBadges(w http.ResponseWriter, r *http.Request) {
 
 	if clearCache == "true" {
 		// Clear the cache for this user
-		collectedBadgesCache.Lock()
-		delete(collectedBadgesCache.data, publicKey)
-		collectedBadgesCache.Unlock()
+		profileBadgesCache.Lock()
+		delete(profileBadgesCache.data, publicKey)
+		profileBadgesCache.Unlock()
 	}
 
 	// Check cache after potential clearing
-	collectedBadgesCache.RLock()
-	cachedData, found := collectedBadgesCache.data[publicKey]
-	collectedBadgesCache.RUnlock()
+	profileBadgesCache.RLock()
+	cachedData, found := profileBadgesCache.data[publicKey]
+	profileBadgesCache.RUnlock()
 
 	if found && clearCache != "true" {
 		// Serve from cache
-		renderCollectedBadges(w, cachedData, cachedData.BadgeDefinitions)
+		renderProfileBadge(w, cachedData, cachedData.BadgeDefinitions)
 		return // Ensure return after serving from cache
 	}
 
@@ -60,10 +60,10 @@ func RenderCollectedBadges(w http.ResponseWriter, r *http.Request) {
 	allRelays := append(relays.Read, relays.Write...)
 	allRelays = append(allRelays, relays.Both...)
 
-	// Fetch the collected badges from the relays
-	profileBadgesEvents, err := utils.FetchCollectedBadges(publicKey, allRelays)
+	// Fetch the profile badges from the relays
+	profileBadgesEvents, err := utils.FetchProfileBadges(publicKey, allRelays)
 	if err != nil {
-		http.Error(w, "Failed to fetch collected badges", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch profile badges", http.StatusInternalServerError)
 		return
 	}
 
@@ -75,32 +75,32 @@ func RenderCollectedBadges(w http.ResponseWriter, r *http.Request) {
 	}
 	// Prepare data for the template
 	data := utils.PageData{
-		CollectedBadges:  profileBadgesEvents,
+		ProfileBadges:    profileBadgesEvents,
 		BadgeDefinitions: badgeDefinitions,
 	}
 
 	// Store in cache
-	collectedBadgesCache.Lock()
-	collectedBadgesCache.data[publicKey] = data
-	collectedBadgesCache.Unlock()
+	profileBadgesCache.Lock()
+	profileBadgesCache.data[publicKey] = data
+	profileBadgesCache.Unlock()
 
 	// Render the component
-	renderCollectedBadges(w, data, badgeDefinitions)
+	renderProfileBadge(w, data, badgeDefinitions)
 }
 
-func renderCollectedBadges(w http.ResponseWriter, data utils.PageData, badgeDefinitions map[string]types.BadgeDefinition) {
-	tmpl := template.Must(template.ParseFiles("web/views/components/collected-badges.html"))
+func renderProfileBadge(w http.ResponseWriter, data utils.PageData, badgeDefinitions map[string]types.BadgeDefinition) {
+	tmpl := template.Must(template.ParseFiles("web/views/components/profile-badges.html"))
 
 	// Create a struct to pass to the template
 	templateData := struct {
 		ProfileBadgesEvents []utils.ProfileBadgesEvent
 		BadgeDefinitions    map[string]types.BadgeDefinition
 	}{
-		ProfileBadgesEvents: data.CollectedBadges,
+		ProfileBadgesEvents: data.ProfileBadges,
 		BadgeDefinitions:    badgeDefinitions,
 	}
 
-	err := tmpl.ExecuteTemplate(w, "collectedBadges", templateData)
+	err := tmpl.ExecuteTemplate(w, "profileBadges", templateData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

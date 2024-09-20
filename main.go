@@ -36,7 +36,7 @@ func main() {
 	mux.HandleFunc("/relay-list", routes.RelayList)
 
 	// Render component htmls
-	mux.HandleFunc("/collected-badges", components.RenderCollectedBadges)
+	mux.HandleFunc("/profile-badges", components.RenderProfileBadgeEvent)
 	mux.HandleFunc("/awarded-badges", components.RenderAwardedBadges)
 	mux.HandleFunc("/created-badges", components.RenderCreatedBadges)
 
@@ -51,7 +51,6 @@ func main() {
 		http.ServeFile(w, r, "web/static/img/favicon.ico")
 	})
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.FS(staticFiles))))
-
 
 	fmt.Printf("Server is running on http://localhost:%d\n", cfg.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), mux)

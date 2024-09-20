@@ -16,7 +16,7 @@ type PageData struct {
 	About            string
 	Relays           RelayList
 	AwardedBadges    []AwardedBadge
-	CollectedBadges  []ProfileBadgesEvent
+	ProfileBadges    []ProfileBadgesEvent
 	BadgeDefinitions map[string]types.BadgeDefinition
 	CreatedBadges    []types.BadgeDefinition
 }
@@ -46,7 +46,7 @@ func RenderTemplate(w http.ResponseWriter, data PageData, view string, useLoginL
 	// Define component templates
 	componentTemplates := []string{
 		filepath.Join(viewsDir, "components", "awarded-badges.html"),
-		filepath.Join(viewsDir, "components", "collected-badges.html"),
+		filepath.Join(viewsDir, "components", "profile-badges.html"),
 		filepath.Join(viewsDir, "components", "created-badges.html"),
 	}
 
