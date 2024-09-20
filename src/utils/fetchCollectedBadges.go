@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"strings"
+	"sync"
 
 	"badger/src/types"
 
@@ -38,6 +39,7 @@ type ProfileBadge struct {
 // FetchCollectedBadges fetches badges from multiple relays.
 func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEvent, error) {
 	var collectedBadges []ProfileBadgesEvent
+	uniqueBadgeIDs := make(map[string]struct{}) // Set to track unique badge IDs
 
 	for _, relayURL := range relays {
 		log.Printf("Connecting to WebSocket: %s\n", relayURL)
@@ -106,6 +108,12 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEve
 					tag := profileBadgesEvent.Tags[i]
 					if tag[0] == "a" && i+1 < len(profileBadgesEvent.Tags) && profileBadgesEvent.Tags[i+1][0] == "e" {
 						badgeDefinitionID := tag[1]
+						if _, exists := uniqueBadgeIDs[badgeDefinitionID]; exists {
+							i++ // Skip the next tag as we've already processed this badge
+							continue
+						}
+						uniqueBadgeIDs[badgeDefinitionID] = struct{}{} // Mark this badge as seen
+
 						awardEventID := profileBadgesEvent.Tags[i+1][1]
 						awardRelayURL := ""
 						if len(profileBadgesEvent.Tags[i+1]) > 2 {
@@ -132,9 +140,10 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEve
 	return collectedBadges, nil
 }
 
-// FetchBadgeDefinitions fetches badge definitions for the collected badges
 func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []string) (map[string]types.BadgeDefinition, error) {
 	badgeDefinitions := make(map[string]types.BadgeDefinition)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	for _, event := range profileBadgesEvents {
 		for _, badge := range event.Badges {
@@ -146,18 +155,25 @@ func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []st
 			authorPubKey := parts[1]
 			dTag := parts[2]
 
-			for _, relayURL := range relays {
-				badgeDef, err := fetchBadgeDefinition(relayURL, authorPubKey, dTag)
-				if err != nil {
-					log.Printf("Failed to fetch badge definition from %s: %v\n", relayURL, err)
-					continue
+			wg.Add(1)
+			go func(badge ProfileBadge) {
+				defer wg.Done()
+				for _, relayURL := range relays {
+					badgeDef, err := fetchBadgeDefinition(relayURL, authorPubKey, dTag)
+					if err != nil {
+						log.Printf("Failed to fetch badge definition from %s: %v\n", relayURL, err)
+						continue
+					}
+					mu.Lock()
+					badgeDefinitions[badge.BadgeDefinitionID] = badgeDef
+					mu.Unlock()
+					break // Successfully fetched the badge definition, no need to try other relays
 				}
-				badgeDefinitions[badge.BadgeDefinitionID] = badgeDef
-				break // Successfully fetched the badge definition, no need to try other relays
-			}
+			}(badge)
 		}
 	}
 
+	wg.Wait() // Wait for all goroutines to finish
 	return badgeDefinitions, nil
 }
 
@@ -252,16 +268,6 @@ func fetchBadgeDefinition(relayURL, authorPubKey, dTag string) (types.BadgeDefin
 
 	return types.BadgeDefinition{}, errors.New("badge definition not found")
 }
-
-// Helper function to check if a slice contains a specific string
-//func contains(slice []string, item string) bool {
-//	for _, str := range slice {
-//		if str == item {
-//			return true
-//		}
-//	}
-//	return false
-//}
 
 // Helper function to check if a tag exists with a specific key and value
 func containsTag(tags [][]string, key, value string) bool {
