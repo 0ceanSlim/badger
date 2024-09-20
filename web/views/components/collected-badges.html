@@ -3,34 +3,36 @@
   <h3 class="mb-4 text-lg font-semibold">Collected Badges</h3>
   <div id="spinner-collected" class="spinner"></div>
   <div class="container px-4 py-8 mx-auto">
-    {{if .CollectedBadges}}
+    {{if .ProfileBadgesEvents}}
     <div
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
     >
-      {{range .CollectedBadges}}
-
+      {{range .ProfileBadgesEvents}} {{range .Badges}} {{$badgeDef := index
+      $.BadgeDefinitions .BadgeDefinitionID}} {{if $badgeDef}}
       <div
         class="relative flex flex-col items-center p-4 rounded-lg shadow-md bg-bgPrimary"
       >
         <div class="relative group">
           <img
-            src="{{.ImageURL}}"
-            alt="{{.BadgeType}}"
+            src="{{$badgeDef.ImageURL}}"
+            alt="{{$badgeDef.Name}}"
             class="object-cover w-48 h-48 mb-3 border-4 rounded-md border-bgInverted"
           />
           <div
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-75 rounded-md opacity-0 group-hover:opacity-100"
           >
             <p class="p-2 text-xs text-center text-white">
-              {{.Description}}{{.EventID}}
+              {{$badgeDef.Description}}
             </p>
           </div>
         </div>
-        <h4 class="mb-2 text-lg font-semibold">{{.Name}}</h4>
-        <p class="text-sm text-center">{{.AwardedBy}}</p>
+        <h4 class="mb-2 text-lg font-semibold">{{$badgeDef.Name}}</h4>
+        <p class="text-sm text-center">Awarded by: {{.AwardEventID}}</p>
+        <p class="text-sm text-center">Relay: {{.AwardRelayURL}}</p>
       </div>
-
-      {{end}}
+      {{else}}
+      <p>Badge definition not found for ID: {{.BadgeDefinitionID}}</p>
+      {{end}} {{end}} {{end}}
     </div>
     {{else}}
     <p class="italic text-red">No badges collected.</p>

@@ -22,11 +22,22 @@ type CollectedBadge struct {
 	CreatedAt   int64  // Event creation time
 }
 
+// ProfileBadgesEvent represents a kind 30008 event
+type ProfileBadgesEvent struct {
+	types.NostrEvent
+	Badges []ProfileBadge
+}
+
+// ProfileBadge represents a single badge in a ProfileBadgesEvent
+type ProfileBadge struct {
+	BadgeDefinitionID string // From "a" tag: "kind:pubkey:dtag"
+	AwardEventID      string // From "e" tag
+	AwardRelayURL     string // From "e" tag
+}
+
 // FetchCollectedBadges fetches badges from multiple relays.
-func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, error) {
-	var collectedBadges []CollectedBadge
-	latestBadges := make(map[string]CollectedBadge)
-	eventOrder := []string{}
+func FetchCollectedBadges(publicKey string, relays []string) ([]ProfileBadgesEvent, error) {
+	var collectedBadges []ProfileBadgesEvent
 
 	for _, relayURL := range relays {
 		log.Printf("Connecting to WebSocket: %s\n", relayURL)
@@ -39,7 +50,7 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 
 		filter := types.SubscriptionFilter{
 			Authors: []string{publicKey},
-			Kinds:   []int{30008}, // Badge receipt events
+			Kinds:   []int{30008}, // Profile Badges events
 		}
 
 		subRequest := []interface{}{
@@ -60,14 +71,11 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 		}
 
 		for {
-			log.Println("Waiting for WebSocket message...")
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				log.Printf("Error reading WebSocket message: %v\n", err)
 				break
 			}
-
-			log.Printf("Received WebSocket message: %s\n", message)
 
 			var response []interface{}
 			if err := json.Unmarshal(message, &response); err != nil {
@@ -82,95 +90,91 @@ func FetchCollectedBadges(publicKey string, relays []string) ([]CollectedBadge, 
 					continue
 				}
 
-				var event types.NostrEvent
-				if err := json.Unmarshal(eventData, &event); err != nil {
+				var profileBadgesEvent ProfileBadgesEvent
+				if err := json.Unmarshal(eventData, &profileBadgesEvent); err != nil {
 					log.Printf("Failed to parse event data: %v\n", err)
 					continue
 				}
 
 				// Process badge events with "profile_badges" tag
-				if !containsTag(event.Tags, "d", "profile_badges") {
+				if !containsTag(profileBadgesEvent.Tags, "d", "profile_badges") {
 					continue
 				}
 
 				// Process pairs of "a" and "e" tags
-				for i := 0; i < len(event.Tags); i++ {
-					tag := event.Tags[i]
-					if tag[0] == "a" {
-						// Ensure the next tag is "e"
-						if i+1 < len(event.Tags) && event.Tags[i+1][0] == "e" {
-							badgeType := tag[1]
-							eventID := event.Tags[i+1][1]
-							relay := ""
-
-							if len(tag) > 2 {
-								relay = tag[2]
-								log.Printf("Using relay: %s\n", relay)
-							}
-
-							if relay == "" {
-								relay = relayURL // Fallback to the current relay
-								log.Printf("Fallback relay URL used: %s\n", relay)
-							}
-
-							// Fetch badge details from the relay
-							badgeDetails, err := fetchBadgeDetails(relay, eventID, badgeType)
-							if err != nil {
-								log.Printf("Failed to fetch badge details: %v\n", err)
-								continue
-							}
-
-							// Update the latest badge if newer
-							if existingBadge, exists := latestBadges[eventID]; !exists || badgeDetails.CreatedAt > existingBadge.CreatedAt {
-								latestBadges[eventID] = badgeDetails
-							}
-
-							// Maintain order of events
-							if !contains(eventOrder, eventID) {
-								eventOrder = append(eventOrder, eventID)
-							}
+				for i := 0; i < len(profileBadgesEvent.Tags); i++ {
+					tag := profileBadgesEvent.Tags[i]
+					if tag[0] == "a" && i+1 < len(profileBadgesEvent.Tags) && profileBadgesEvent.Tags[i+1][0] == "e" {
+						badgeDefinitionID := tag[1]
+						awardEventID := profileBadgesEvent.Tags[i+1][1]
+						awardRelayURL := ""
+						if len(profileBadgesEvent.Tags[i+1]) > 2 {
+							awardRelayURL = profileBadgesEvent.Tags[i+1][2]
 						}
+
+						profileBadgesEvent.Badges = append(profileBadgesEvent.Badges, ProfileBadge{
+							BadgeDefinitionID: badgeDefinitionID,
+							AwardEventID:      awardEventID,
+							AwardRelayURL:     awardRelayURL,
+						})
+						i++ // Skip the next tag as we've processed it
 					}
 				}
+
+				collectedBadges = append(collectedBadges, profileBadgesEvent)
 			} else if response[0] == "EOSE" {
-				// End of Stored Events - finish processing this relay
 				log.Println("End of subscription signal received")
 				break
 			}
 		}
 	}
 
-	// Collect badges in order of their event IDs
-	for _, eventID := range eventOrder {
-		if badge, exists := latestBadges[eventID]; exists {
-			collectedBadges = append(collectedBadges, badge)
-		}
-	}
-
 	return collectedBadges, nil
 }
 
+// FetchBadgeDefinitions fetches badge definitions for the collected badges
+func FetchBadgeDefinitions(profileBadgesEvents []ProfileBadgesEvent, relays []string) (map[string]types.BadgeDefinition, error) {
+	badgeDefinitions := make(map[string]types.BadgeDefinition)
+
+	for _, event := range profileBadgesEvents {
+		for _, badge := range event.Badges {
+			parts := strings.Split(badge.BadgeDefinitionID, ":")
+			if len(parts) != 3 {
+				log.Printf("Invalid badge definition ID format: %s\n", badge.BadgeDefinitionID)
+				continue
+			}
+			authorPubKey := parts[1]
+			dTag := parts[2]
+
+			for _, relayURL := range relays {
+				badgeDef, err := fetchBadgeDefinition(relayURL, authorPubKey, dTag)
+				if err != nil {
+					log.Printf("Failed to fetch badge definition from %s: %v\n", relayURL, err)
+					continue
+				}
+				badgeDefinitions[badge.BadgeDefinitionID] = badgeDef
+				break // Successfully fetched the badge definition, no need to try other relays
+			}
+		}
+	}
+
+	return badgeDefinitions, nil
+}
+
 // fetchBadgeDetails fetches the badge definition details from the relay.
-func fetchBadgeDetails(relayURL, eventID, badgeType string) (CollectedBadge, error) {
+func fetchBadgeDefinition(relayURL, authorPubKey, dTag string) (types.BadgeDefinition, error) {
 	conn, _, err := websocket.DefaultDialer.Dial(relayURL, nil)
 	if err != nil {
-		log.Printf("Failed to connect to WebSocket for badge details: %v\n", err)
-		return CollectedBadge{}, err
+		log.Printf("Failed to connect to WebSocket for badge definition: %v\n", err)
+		return types.BadgeDefinition{}, err
 	}
 	defer conn.Close()
-
-	// Badge type sometimes has a format like `30009:xxx:badgeName`. Only extract the event ID (the middle part)
-	parts := strings.Split(badgeType, ":")
-	if len(parts) < 2 {
-		log.Printf("Invalid badgeType format: %s\n", badgeType)
-		return CollectedBadge{}, errors.New("invalid badge type format")
-	}
-	badgeEventID := parts[1]
 
 	// Subscription filter for badge definition (kind 30009)
 	filter := types.SubscriptionFilter{
 		Kinds:   []int{30009},
-		Authors: []string{badgeEventID},
+		Authors: []string{authorPubKey},
+		Tags:    map[string][]string{"d": {dTag}},
 	}
 
 	subRequest := []interface{}{
@@ -182,85 +186,82 @@ func fetchBadgeDetails(relayURL, eventID, badgeType string) (CollectedBadge, err
 	requestJSON, err := json.Marshal(subRequest)
 	if err != nil {
 		log.Printf("Failed to marshal subscription request: %v\n", err)
-		return CollectedBadge{}, err
+		return types.BadgeDefinition{}, err
 	}
 
 	if err := conn.WriteMessage(websocket.TextMessage, requestJSON); err != nil {
-		log.Printf("Failed to send subscription request for badge details: %v\n", err)
-		return CollectedBadge{}, err
+		log.Printf("Failed to send subscription request for badge definition: %v\n", err)
+		return types.BadgeDefinition{}, err
 	}
 
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("Error reading WebSocket message: %v\n", err)
-			return CollectedBadge{}, err
+			return types.BadgeDefinition{}, err
 		}
 
-		log.Printf("Received WebSocket message for badge details: %s\n", message)
+		log.Printf("Received WebSocket message for badge definition: %s\n", message)
 
 		var response []interface{}
 		if err := json.Unmarshal(message, &response); err != nil {
-			log.Printf("Failed to unmarshal badge details response: %v\n", err)
+			log.Printf("Failed to unmarshal badge definition response: %v\n", err)
 			continue
 		}
 
 		// Handle NOTICE messages indicating bad request
 		if response[0] == "NOTICE" {
 			log.Printf("NOTICE from WebSocket: %v\n", response)
-			return CollectedBadge{}, errors.New("error fetching badge details: " + response[1].(string))
+			return types.BadgeDefinition{}, errors.New("error fetching badge definition: " + response[1].(string))
 		}
 
 		if response[0] == "EVENT" {
 			eventData, err := json.Marshal(response[2])
 			if err != nil {
-				log.Printf("Failed to marshal badge details event data: %v\n", err)
+				log.Printf("Failed to marshal badge definition event data: %v\n", err)
 				continue
 			}
 
-			var event types.NostrEvent
-			if err := json.Unmarshal(eventData, &event); err != nil {
-				log.Printf("Failed to parse badge details event data: %v\n", err)
+			var badgeDefEvent types.BadgeDefinition
+			if err := json.Unmarshal(eventData, &badgeDefEvent); err != nil {
+				log.Printf("Failed to parse badge definition event data: %v\n", err)
 				continue
 			}
 
-			// Parse badge details from the event
-			var badge CollectedBadge
-			badge.BadgeType = badgeType
-			badge.EventID = eventID
-			badge.CreatedAt = event.CreatedAt
-
-			for _, tag := range event.Tags {
+			// Parse badge details from the event tags
+			for _, tag := range badgeDefEvent.Tags {
 				switch tag[0] {
 				case "name":
-					badge.Name = tag[1]
+					badgeDefEvent.Name = tag[1]
 				case "description":
-					badge.Description = tag[1]
+					badgeDefEvent.Description = tag[1]
 				case "image":
-					badge.ImageURL = tag[1]
+					badgeDefEvent.ImageURL = tag[1]
 				case "thumb":
-					badge.ThumbURL = tag[1]
+					badgeDefEvent.ThumbURL = tag[1]
+				case "d":
+					badgeDefEvent.DTag = tag[1]
 				}
 			}
 
-			return badge, nil
+			return badgeDefEvent, nil
 		} else if response[0] == "EOSE" {
 			break
 		}
 	}
 
-	return CollectedBadge{}, errors.New("badge details not found")
+	return types.BadgeDefinition{}, errors.New("badge definition not found")
 }
 
 // Helper function to check if a slice contains a specific string
-func contains(slice []string, item string) bool {
-	for _, str := range slice {
-		if str == item {
-			return true
-		}
-	}
-	return false
-}
+//func contains(slice []string, item string) bool {
+//	for _, str := range slice {
+//		if str == item {
+//			return true
+//		}
+//	}
+//	return false
+//}
 
 // Helper function to check if a tag exists with a specific key and value
 func containsTag(tags [][]string, key, value string) bool {

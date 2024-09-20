@@ -8,16 +8,17 @@ import (
 )
 
 type PageData struct {
-	Title           string
-	Theme           string
-	PublicKey       string
-	DisplayName     string
-	Picture         string
-	About           string
-	Relays          RelayList
-	AwardedBadges   []AwardedBadge
-	CollectedBadges []CollectedBadge
-	CreatedBadges   []types.BadgeDefinition
+	Title            string
+	Theme            string
+	PublicKey        string
+	DisplayName      string
+	Picture          string
+	About            string
+	Relays           RelayList
+	AwardedBadges    []AwardedBadge
+	CollectedBadges  []ProfileBadgesEvent
+	BadgeDefinitions map[string]types.BadgeDefinition
+	CreatedBadges    []types.BadgeDefinition
 }
 
 // Define the base directories for views and templates
